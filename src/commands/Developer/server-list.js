@@ -1,13 +1,17 @@
-const { SlashCommandBuilder, EmbedBuilder, PermissionsBitField } = require("discord.js");
- 
+const {
+  SlashCommandBuilder,
+  EmbedBuilder,
+  PermissionsBitField,
+} = require("discord.js");
+
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("guild-list")
-    .setDescription("Lists all the guilds the bot is currently in."),
- 
+    .setName("server-list")
+    .setDescription("Lists all the server the bot is currently in."),
+
   async execute(interaction, client) {
     try {
-      if (interaction.user.id !== "920992520987607040") {
+      if (interaction.user.id !== process.env.DEVELOPER_ID) {
         return await interaction.reply({
           content: "This command is locked under the developer.",
           ephemeral: true,
@@ -19,46 +23,48 @@ module.exports = {
       let page = 1;
       const start = (page - 1) * pageSize;
       const end = page * pageSize;
- 
+
       let guildList = "";
       let index = 1;
- 
+
       for (const [guildId, guild] of guilds) {
         const owner = guild.members.cache.get(guild.ownerId);
- 
+
         if (!owner) continue;
- 
+
         if (index > end) break;
- 
+
         if (index > start) {
-          guildList += `**__Guild__**: ${guild.name} (${guildId})\n`;
-          guildList += `**__Guild Owner__**: ${owner.user.tag} (${owner.user.id})\n`;
-          guildList += `**__Members__**: ${guild.memberCount}\n\n`;
+          guildList += `**Guild**: ${guild.name} (${guildId})\n`;
+          guildList += `**Guild Owner**: ${owner.user.tag} (${owner.user.id})\n`;
+          guildList += `**Members**: ${guild.memberCount}\n\n`;
         }
         index++;
       }
- 
+
       const embed = new EmbedBuilder()
-        .setTitle(`Luffy is currently in **${client.guilds.cache.size}** Servers`)
+        .setTitle(
+          `Luffy is currently in **${client.guilds.cache.size}** Servers`
+        )
         .setDescription(guildList)
         .setColor("NotQuiteBlack")
         .setFooter({ text: `Page ${page}/${pages}` })
         .setTimestamp();
- 
+
       const msg = await interaction.reply({
         embeds: [embed],
         fetchReply: true,
       });
- 
+
       if (pages > 1) {
         await msg.react("⬅️");
         await msg.react("➡️");
- 
+
         const filter = (reaction, user) =>
           ["⬅️", "➡️"].includes(reaction.emoji.name) &&
           user.id === interaction.user.id;
         const collector = msg.createReactionCollector({ filter, time: 60000 });
- 
+
         collector.on("collect", async (reaction) => {
           if (reaction.emoji.name === "⬅️" && page > 1) {
             page--;
@@ -69,29 +75,29 @@ module.exports = {
           } else if (reaction.emoji.name === "➡️" && page === pages) {
             page = 1;
           }
- 
+
           const newstart = (page - 1) * pageSize;
           const newend = page * pageSize;
- 
+
           guildList = "";
           index = 1;
- 
+
           for (const [guildId, guild] of guilds) {
             const owner = guild.members.cache.get(guild.ownerId);
- 
+
             if (!owner) continue;
- 
+
             if (index > newend) break;
- 
+
             if (index > newstart) {
-                guildList += `**__Guild__**: ${guild.name} (${guildId})\n`;
-                guildList += `**__Guild Owner__**: ${owner.user.tag} (${owner.user.id})\n`;
-                guildList += `**__Members__**: ${guild.memberCount}\n\n`;
+              guildList += `**__Guild__**: ${guild.name} (${guildId})\n`;
+              guildList += `**__Guild Owner__**: ${owner.user.tag} (${owner.user.id})\n`;
+              guildList += `**__Members__**: ${guild.memberCount}\n\n`;
             }
- 
+
             index++;
           }
- 
+
           embed
             .setDescription(guildList)
             .setFooter({ text: `Page ${page}/${pages}` });
@@ -99,7 +105,7 @@ module.exports = {
           await reaction.users.remove(interaction.user);
           collector.resetTimer();
         });
- 
+
         collector.on("end", async () => {
           msg.reactions.removeAll().catch(console.error);
           embed.setFooter({ text: `Page ${page}/${pages} (page inactive)` });

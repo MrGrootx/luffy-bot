@@ -101,7 +101,7 @@ process.on("uncaughtExceptionMonitor", (err, origin) => {
     require(`./functions/${file}`)(client);
   }
 
-  // client.login(process.env.token);
+  client.login(process.env.token);
 })();
 
 client.handleEvents(eventFiles, "./src/events");
@@ -111,12 +111,11 @@ Logs(client, {
   debug: true,
 });
 
-const {logging} = require("./events/logging");
+const { logging } = require("./events/logging");
 
 client.login(process.env.token).then(() => {
   logging(client);
 });
-
 
 // Prefix Handler
 client.on("messageCreate", async (message) => {
@@ -131,3 +130,5 @@ client.on("messageCreate", async (message) => {
     prefixcmd.run(client, message, args);
   }
 });
+
+

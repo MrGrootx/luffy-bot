@@ -132,3 +132,62 @@ client.on("messageCreate", async (message) => {
 });
 
 
+// REPORT SYSTEM
+
+const reportSchema = require('./schemas.js/reportSchema');
+client.on(Events.InteractionCreate, async interaction => {
+  if(!interaction.isModalSubmit()) return;
+
+  if(interaction.customId === 'modal') {
+    const contact = interaction.fields.getTextInputValue('contact');
+    const issue = interaction.fields.getTextInputValue('issue');
+    const description = interaction.fields.getTextInputValue('description');
+
+    const member = interaction.user.id;
+    const tag = interaction.user.tag;
+    const server = interaction.guild.name;
+
+    const embed = new EmbedBuilder()
+    .setColor('NotQuiteBlack')
+    .setTitle('Report Received')
+    .setAuthor({ name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL()})
+    .addFields(
+      { name: 'Contact', value: `${contact}`, inline: true},
+      { name: 'Issue', value: `${issue}`, inline: true},
+      { name: 'Description', value: `${description}`, inline: true},
+    )
+    // .addFields(
+    //   { name: ' USER INFO', value: ` `},
+    //   { name: 'User Tag', value: `${tag}`},
+    //   { name: 'User ID', value: `${member}`},
+    //   { name: 'Server', value: `${server}`},
+    //   { name: 'Date', value: `${new Date().toLocaleString()}`},
+
+    // )
+    .setDescription(` **User info**\nName : ${tag} <@${member}>
+    Form Submitted Date: ${new Date().toLocaleString()}
+    Joined: ${interaction.guild.members.cache.get(member).joinedAt.toLocaleString()}
+    Created: ${interaction.guild.members.cache.get(member).user.createdAt.toLocaleString()}
+    `)
+    .setFooter({ text: `Author ID : ${member}`})
+    .setTimestamp()
+    
+
+    reportSchema.findOne({ Guild: interaction.guild.id }, async (err, data) => {
+      if(!data) return;
+
+      if(data) {
+        const ChannelID = data.Channel
+        const channel = interaction.guild.channels.cache.get(ChannelID)
+
+        channel.send({ embeds: [embed]})
+
+        await interaction.reply({ content: `Your report has been submitted`, ephemeral: true})
+        .catch((err) => {
+          return
+        })
+      }
+    })
+    
+  }
+})

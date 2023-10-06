@@ -40,7 +40,6 @@ function logging(client) {
       return send_log(message.guild.id, embed);
     } catch (err) {
       console.log(`Couldn't log deleted msg`);
-      console.log(err);
     }
   });
 

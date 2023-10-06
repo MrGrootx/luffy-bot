@@ -11,6 +11,7 @@
   "dependencies": {
     "@discordjs/voice": "^0.16.0",
     "canvacord": "^5.4.10",
+    "captcha-canvas": "^3.2.1",
     "chalk": "^5.3.0",
     "discord-cloner": "^1.1.5",
     "discord-fivem-api": "^2.0.2",

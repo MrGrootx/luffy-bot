@@ -63,12 +63,16 @@ const {
             .setLevelColor('#FFFF')
             .setCurrentXP(fetchedLevel.xp)
             .setRequiredXP(calculateLevelXp(fetchedLevel.level))
-            .setStatus(targetUserId.presence?.status || 'offline')
+            .setStatus(targetUserObj.presence?.status || 'offline')
             .setProgressBarTrack('#3f7b40', 'COLOR')
             .setProgressBar('#0cf310', 'COLOR')
             .setUsername(targetUserObj.user.username)
             .setDiscriminator(targetUserObj.user.discriminator)
             .setBackground('IMAGE', 'https://media.discordapp.net/attachments/1147012197948604456/1159739660373852182/image.png?ex=65321eb9&is=651fa9b9&hm=511bc130e2c9a26d062afd9b5a6bd681acd7ea948cf201cd95a6ebccb731d34e&=')
+
+
+            
+
       
           const data = await rank.build();
           const attachment = new AttachmentBuilder(data);

@@ -299,4 +299,120 @@ client.on(Events.GuildMemberAdd, async (interaction, message) => {
   await channel.send({ embeds: [embed] });
 });
 
+// CAPTCHA SYSTEM
 
+const { CaptchaGenerator } = require("captcha-canvas");
+const capSchema = require("./schemas.js/captchaSchema");
+let guild;
+const buttonDisabledTimeout = 5 * 60 * 1000; 
+client.on(Events.GuildMemberAdd, async (member) => {
+  const Data = await capSchema.findOne({ Guild: member.guild.id });
+  if (!Data) return;
+  else {
+    const cap = Data.Captcha;
+
+    const captcha = new CaptchaGenerator()
+      .setDimension(150, 450)
+      .setCaptcha({ text: `${cap}`, size: 60, color: "green" })
+      .setDecoy({ opacity: 0.5 })
+      .setTrace({ color: "green" });
+      console.log(captcha)
+      const buffer = await captcha.generateSync(); // Use await here
+
+    const attachment = new AttachmentBuilder(buffer, { name: "captcha.png" });
+   
+
+    const embed = new EmbedBuilder()
+      .setColor("NotQuiteBlack")
+      .setImage("attachment://captcha.png")
+      .setTitle(`Solve the captcha to get access to the server`)
+      .addFields({ name: `🔴 Note:`, value: `You have 5 minutes to solve the captcha`})
+      .setTimestamp()
+      .setFooter({ text: `Use the button below to solve the captcha` });
+
+    const capBtn = new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setCustomId("capbtn")
+        .setLabel("Submit")
+        .setStyle(ButtonStyle.Secondary)
+        .setDisabled(false)
+    );
+
+    const capmodal = new ModalBuilder()
+      .setTitle("Submit Captcha Answer")
+      .setCustomId("capModal");
+
+    const answer = new TextInputBuilder()
+      .setCustomId("answer")
+      .setRequired(true)
+      .setLabel("Your captcha answer")
+      .setPlaceholder(
+        "Submit what you think the captcha is!  If you get it wrong you can try again"
+      )
+      .setStyle(TextInputStyle.Short)
+
+    const one = new ActionRowBuilder().addComponents(answer);
+
+    capmodal.addComponents(one);
+
+    const msg = await member
+      .send({ embeds: [embed], files: [attachment], components: [capBtn] })
+      .catch((err) => {
+        return;
+      });
+
+    const collector = msg.createMessageComponentCollector();
+
+    collector.on("collect", async (i) => {
+      if (i.customId === "capbtn") {
+        i.showModal(capmodal);
+      }
+
+      setTimeout(() => {
+        capBtn.components[0].setDisabled(true);
+        msg.edit({ components: [capBtn] });
+      }, buttonDisabledTimeout);
+
+    });
+
+
+    guild = member.guild;
+  }
+});
+
+client.on(Events.InteractionCreate, async (interaction) => {
+  if (!interaction.isModalSubmit()) return;
+  else {
+    if (!interaction.customId === "capModal") return;
+    // const Data = await capSchema.findOne({ Guild: guild.id });
+    const Data = await capSchema.findOne({ Guild: guild.id });
+
+    const answer = interaction.fields.getTextInputValue("answer");
+    const cap = Data.Captcha;
+
+    if (answer != `${cap}`)
+      return await interaction.reply({
+        content: `You got the captcha wrong, try again!`,
+        ephemeral: true,
+      });
+    else {
+      const RoleID = Data.Role;
+
+      const capGuild = await client.guilds.cache.get(guild.id);
+      const role = await capGuild.roles.cache.get(RoleID);
+
+      const member = await capGuild.members.fetch(interaction.user.id);
+
+      await member.roles.add(role).catch((err) => {
+        interaction.reply({
+          content: `There was an error adding the role`,
+          ephemeral: true,
+        });
+      });
+
+      await interaction.reply({
+        content: `You have been Verified within ${capGuild.name}`,
+      });
+    }
+  }
+});

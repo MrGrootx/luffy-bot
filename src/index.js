@@ -60,13 +60,10 @@ const client = new Client({
   ],
 });
 
-
 // music
-const { SpotifyPlugin } = require('@distube/spotify');
-const { SoundCloudPlugin } = require('@distube/soundcloud');
-const { YtDlpPlugin } = require('@distube/yt-dlp');
-
-
+const { SpotifyPlugin } = require("@distube/spotify");
+const { SoundCloudPlugin } = require("@distube/soundcloud");
+const { YtDlpPlugin } = require("@distube/yt-dlp");
 
 const Logs = require("discord-logs");
 
@@ -117,10 +114,9 @@ client.distube = new DisTube(client, {
   emitNewSongOnly: true,
   leaveOnFinish: true, // you can change this to your needs
   emitAddSongWhenCreatingQueue: false,
-  
+
   plugins: [new SpotifyPlugin(), new SoundCloudPlugin(), new YtDlpPlugin()],
 });
-
 
 (async () => {
   for (file of functions) {
@@ -328,7 +324,7 @@ client.on(Events.GuildMemberAdd, async (interaction, message) => {
 const { CaptchaGenerator } = require("captcha-canvas");
 const capSchema = require("./schemas.js/captchaSchema");
 let guild;
-const buttonDisabledTimeout = 5 * 60 * 1000; 
+const buttonDisabledTimeout = 5 * 60 * 1000;
 client.on(Events.GuildMemberAdd, async (member) => {
   const Data = await capSchema.findOne({ Guild: member.guild.id });
   if (!Data) return;
@@ -340,17 +336,19 @@ client.on(Events.GuildMemberAdd, async (member) => {
       .setCaptcha({ text: `${cap}`, size: 60, color: "green" })
       .setDecoy({ opacity: 0.5 })
       .setTrace({ color: "green" });
-      console.log(captcha)
-      const buffer = await captcha.generateSync(); // Use await here
+    console.log(captcha);
+    const buffer = await captcha.generateSync(); // Use await here
 
     const attachment = new AttachmentBuilder(buffer, { name: "captcha.png" });
-   
 
     const embed = new EmbedBuilder()
       .setColor("NotQuiteBlack")
       .setImage("attachment://captcha.png")
       .setTitle(`Solve the captcha to get access to the server`)
-      .addFields({ name: `🔴 Note:`, value: `You have 5 minutes to solve the captcha`})
+      .addFields({
+        name: `🔴 Note:`,
+        value: `You have 5 minutes to solve the captcha`,
+      })
       .setTimestamp()
       .setFooter({ text: `Use the button below to solve the captcha` });
 
@@ -373,7 +371,7 @@ client.on(Events.GuildMemberAdd, async (member) => {
       .setPlaceholder(
         "Submit what you think the captcha is!  If you get it wrong you can try again"
       )
-      .setStyle(TextInputStyle.Short)
+      .setStyle(TextInputStyle.Short);
 
     const one = new ActionRowBuilder().addComponents(answer);
 
@@ -396,9 +394,7 @@ client.on(Events.GuildMemberAdd, async (member) => {
         capBtn.components[0].setDisabled(true);
         msg.edit({ components: [capBtn] });
       }, buttonDisabledTimeout);
-
     });
-
 
     guild = member.guild;
   }
@@ -439,4 +435,33 @@ client.on(Events.InteractionCreate, async (interaction) => {
       });
     }
   }
+});
+
+// AUTOROLE SYSTTEM
+const autoroleSchema = require("./schemas.js/autoroleSchema");
+
+client.on(Events.GuildMemberAdd, async (interaction) => {
+  const member = interaction.user.id;
+
+  autoroleSchema.findOne(
+    { GuildID: interaction.guild.id },
+    async (err, data) => {
+      if (err) {
+        console.log(err);
+      }
+
+      if(data) {
+        const RoleID = data.RoleID;
+        const role = await interaction.guild.roles.cache.get(RoleID);
+        await interaction.guild.members.fetch(member).then(member => {
+          member.roles.add(role);
+          console.log(member.user.username , `Role Added`)
+        }).catch(err => {
+          console.log(err)
+          return;
+        })
+      }
+      
+    }
+  );
 });

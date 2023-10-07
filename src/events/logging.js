@@ -19,11 +19,11 @@ function logging(client) {
     });
   }
 
-  client.on("messageDelete", function (message) {
+  client.on(Events.MessageDelete,  function (message) {
     try {
-      if (message.guild === null) return;
       if (message.author.bot) return;
-
+      if (message.guild === null) return;
+      
       const embed = new EmbedBuilder()
         .setTitle("Message Deleted")
         .setColor("NotQuiteBlack")
@@ -42,6 +42,10 @@ function logging(client) {
       console.log(`Couldn't log deleted msg`);
     }
   });
+
+
+  
+
 
   // Channel Topic Updating
   client.on("guildChannelTopicUpdate", (channel, oldTopic, newTopic) => {

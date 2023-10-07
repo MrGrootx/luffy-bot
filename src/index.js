@@ -27,6 +27,9 @@ const {
 } = require(`discord.js`);
 
 const fs = require("fs");
+
+// music stuff
+const { DisTube } = require("distube");
 // const prefix = '?';
 const client = new Client({
   intents: [
@@ -56,6 +59,14 @@ const client = new Client({
     Partials.GuildMember,
   ],
 });
+
+
+// music
+const { SpotifyPlugin } = require('@distube/spotify');
+const { SoundCloudPlugin } = require('@distube/soundcloud');
+const { YtDlpPlugin } = require('@distube/yt-dlp');
+
+
 
 const Logs = require("discord-logs");
 
@@ -96,7 +107,20 @@ process.on("uncaughtExceptionMonitor", (err, origin) => {
   console.log("Uncaught Expection Monitor", err, origin);
 });
 
-// error handling end
+// error handling end]
+
+// MUSIC
+
+module.exports = client;
+
+client.distube = new DisTube(client, {
+  emitNewSongOnly: true,
+  leaveOnFinish: true, // you can change this to your needs
+  emitAddSongWhenCreatingQueue: false,
+  
+  plugins: [new SpotifyPlugin(), new SoundCloudPlugin(), new YtDlpPlugin()],
+});
+
 
 (async () => {
   for (file of functions) {

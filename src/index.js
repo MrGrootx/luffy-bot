@@ -28,6 +28,7 @@ const {
 
 const fs = require("fs");
 
+
 // music stuff
 const { DisTube } = require("distube");
 // const prefix = '?';
@@ -59,6 +60,9 @@ const client = new Client({
     Partials.GuildMember,
   ],
 });
+
+// COOLDOWN HAND
+client.cooldown = new Collection()
 
 // music
 const { SpotifyPlugin } = require("@distube/spotify");
@@ -122,7 +126,7 @@ client.distube = new DisTube(client, {
   for (file of functions) {
     require(`./functions/${file}`)(client);
   }
-
+  
   client.login(process.env.token);
 })();
 

@@ -28,6 +28,7 @@
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.43",
     "mongoose": "^6.0.12",
+    "ms-prettify": "^1.4.0",
     "musicard": "^1.5.1",
     "opusscript": "^0.0.8",
     "tinyurl": "^1.1.7"

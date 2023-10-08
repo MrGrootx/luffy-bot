@@ -1,7 +1,9 @@
-const ms = require('ms');
+// const ms = require('ms');
+const ms = require('ms')
 
-const { Interaction,EmbedBuilder } = require("discord.js");
-const { isUserPremium } = require('../events/premiumCodegen')
+const { Interaction,EmbedBuilder, time } = require("discord.js");
+const { isUserPremium } = require('../events/premiumCodegen');
+const cooldown = new Set()
 
 module.exports = {
     name: 'interactionCreate',
@@ -10,10 +12,22 @@ module.exports = {
      const { member} = interaction
 
         if (!interaction.isCommand()) return;
-
-
         const command = client.commands.get(interaction.commandName);
         if (!command) return
+
+        // cooldown Lines
+        const cooldownData = `${interaction.user.id}/${interaction.commandName}`;
+        if(client.cooldown.has(cooldownData)) {
+            const time = ms(client.cooldown.get(cooldownData) - Date.now());
+
+            return interaction.reply({ content: `**You are in Cooldown for ${time}**`, ephemeral: true})
+        };
+        interaction.setCooldown = (time) => {
+            client.cooldown.set(cooldownData, Date.now() + time);
+            setTimeout(() => client.cooldown.delete(cooldownData), time);
+        };
+
+
         /// premium command start
         const isPremium = await isUserPremium(member.id )
         const premiumEmbed = new EmbedBuilder()

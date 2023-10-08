@@ -3,8 +3,8 @@ const wait = require('util').promisify(setTimeout);
 module.exports = {
     premiumOnly: true,
     data: new SlashCommandBuilder()
-    .setName('ping')
-    .setDescription('Replies with Pong!'),
+    .setName('devping')
+    .setDescription('devping'),
    
     async execute (interaction) {
 

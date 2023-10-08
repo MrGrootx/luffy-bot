@@ -450,18 +450,61 @@ client.on(Events.GuildMemberAdd, async (interaction) => {
         console.log(err);
       }
 
-      if(data) {
+      if (data) {
         const RoleID = data.RoleID;
         const role = await interaction.guild.roles.cache.get(RoleID);
-        await interaction.guild.members.fetch(member).then(member => {
-          member.roles.add(role);
-          console.log(member.user.username , `Role Added`)
-        }).catch(err => {
-          console.log(err)
-          return;
-        })
+        await interaction.guild.members
+          .fetch(member)
+          .then((member) => {
+            member.roles.add(role);
+            console.log(member.user.username, `Role Added`);
+          })
+          .catch((err) => {
+            console.log(err);
+            return;
+          });
       }
-      
     }
   );
+});
+
+//BOT PING
+client.on(Events.MessageCreate, async (message) => {
+  if (message.author.bot) return;
+  if (message.content.includes(process.env.BOT_ID)) {
+    const pingEmbed = new EmbedBuilder()
+
+      .setColor("NotQuiteBlack")
+      .setTitle("``📌`` Who mentioned me?")
+      .setDescription(
+        `Hey there ${message.author.username}!, here is some useful information about me.\n**How to view all commands?**\nEither use **/help** to view a list of all the commands!`
+      )
+
+      .addFields({
+        name: "``💾`` Servers:",
+        value: `${client.guilds.cache.size}`,
+        inline: true,
+      })
+      .addFields({
+        name: "``👥`` Users:",
+        value: `${client.users.cache.size}`,
+        inline: true,
+      })
+      .addFields({
+        name: "``📡`` Commands:",
+        value: `${client.commands.size}`,
+        inline: true,
+      })
+      .setTimestamp()
+      .setThumbnail(client.user.displayAvatarURL({ size: 64 }))
+      .setFooter({ text: `Requested by ${message.author.username}.` });
+    const buttons = new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setLabel("Invite")
+        .setURL(process.env.BOT_INVITE)
+        .setStyle(ButtonStyle.Link)
+    );
+
+    return message.channel.send({ embeds: [pingEmbed], components: [buttons] });
+  }
 });

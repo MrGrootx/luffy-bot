@@ -44,7 +44,8 @@ module.exports = {
 
         // developer interaction
 
-        if (command.devOnly && interaction.user.id !== process.env.DEVELOPER_ID) {
+        const developerID = process.env.DEVELOPER_ID
+        if (command.devOnly && !developerID.includes(interaction.user.id)) {
             return interaction.reply({
                 embeds: [
                     new EmbedBuilder()

@@ -69,11 +69,16 @@ const client = new Client({
 });
 
 
+
 // DASHBOARD
 app.enable("trust proxy") // if the ip is ::1 it means localhost
 app.set("etag", false) // disabe cache
 
 app.use(express.static(__dirname + "/dashboard"))
+// exporting main index to dashboard index
+module.exports.client = client;
+
+
 
 
 // COOLDOWN HAND
@@ -107,8 +112,25 @@ for (arx of prefixFolders) {
   client.prefix.set(Cmd.name, Cmd);
 }
 
-// error handling start
 
+
+// DASHBOARD REQUEST HANDLER
+// GeT all the files in the public folder that ends with .js
+let files = fs.readdirSync("./src/dashboard/public").filter(f => f.endsWith('js'))
+
+// Looping thru all files
+files.forEach(f => {
+  // requiring the file
+  const file = require(`./dashboard/public/${f}`)
+  if (file && file.name) { // if the file name
+    app.get(file.name, file.run)
+    console.log(`[Dashboard] - Loaded ${file.name}`)
+  
+  }
+})
+
+
+// error handling start
 const process = require("node:process");
 
 process.on("unhandledRejection", async (reason, promise) => {
@@ -129,6 +151,7 @@ process.on("uncaughtExceptionMonitor", (err, origin) => {
 
 module.exports = client;
 
+
 client.distube = new DisTube(client, {
   emitNewSongOnly: true,
   leaveOnFinish: true, // you can change this to your needs
@@ -141,12 +164,14 @@ client.distube = new DisTube(client, {
   for (file of functions) {
     require(`./functions/${file}`)(client);
   }
-
   client.login(process.env.token);
 })();
 
 client.handleEvents(eventFiles, "./src/events");
 client.handleCommands(commandFolders, "./src/commands");
+//DASHBOARD
+app.listen(process.env.PORT || 90, () => console.log(`[DASHBORD] port on ${process.env.PORT || 90}`))
+
 
 Logs(client, {
   debug: true,
@@ -171,6 +196,8 @@ client.on("messageCreate", async (message) => {
     prefixcmd.run(client, message, args);
   }
 });
+
+
 
 // REPORT SYSTEM
 
@@ -575,34 +602,34 @@ client.on(Events.MessageCreate, async (message) => {
 });
 
 // DASHBOARD 
-app.get("/", async (req, res) => {
+// app.get("/", async (req, res) => {
 
-  // const ram = os.totalmem() / 1000
-  // const cores = os.cpus().length
-  // const cpus = os.cpus()[0].model
+//   // const ram = os.totalmem() / 1000
+//   // const cores = os.cpus().length
+//   // const cpus = os.cpus()[0].model
 
-  // const users = client.users.cache.size
-  const users = await client.guilds.cache.reduce(
-    (a, b) => a + b.memberCount,
-    0
-  );
-  const guilds = client.guilds.cache.size
+//   // const users = client.users.cache.size
+//   const users = await client.guilds.cache.reduce(
+//     (a, b) => a + b.memberCount,
+//     0
+//   );
+//   const guilds = client.guilds.cache.size
  
-  const filePath = path.join(__dirname, 'dashboard/html/home.html');
-  let file = fs.readFileSync(filePath, { encoding: 'utf8' });
+//   const filePath = path.join(__dirname, 'dashboard/html/home.html');
+//   let file = fs.readFileSync(filePath, { encoding: 'utf8' });
 
-  // file = file.replace("$$ram$$", ram)
-  // file = file.replace("$$cores$$", cores)
-  // file = file.replace("$$cpu$$", cpus)
+//   // file = file.replace("$$ram$$", ram)
+//   // file = file.replace("$$cores$$", cores)
+//   // file = file.replace("$$cpu$$", cpus)
 
-  file = file.replace("$$users$$", users)
-  file = file.replace("$$guilds$$", guilds)
+//   file = file.replace("$$users$$", users)
+//   file = file.replace("$$guilds$$", guilds)
 
-  res.send(file)
-  // res.sendFile('./dashboard/html/home.html', { root: __dirname })
+//   res.send(file)
+//   // res.sendFile('./dashboard/html/home.html', { root: __dirname })
 
 
-})  
+// })  
 
-app.listen(process.env.PORT || 90, () => console.log(`App on port ${process.env.PORT || 90}`))
+
 

@@ -28,6 +28,14 @@ const {
 
 const fs = require("fs");
 
+// DASHBOARD
+const path = require('path');
+const express = require("express");
+const os = require("os");
+const app = express();
+
+
+
 // music stuff
 const { DisTube } = require("distube");
 // const prefix = '?';
@@ -59,6 +67,14 @@ const client = new Client({
     Partials.GuildMember,
   ],
 });
+
+
+// DASHBOARD
+app.enable("trust proxy") // if the ip is ::1 it means localhost
+app.set("etag", false) // disabe cache
+
+app.use(express.static(__dirname + "/dashboard"))
+
 
 // COOLDOWN HAND
 client.cooldown = new Collection();
@@ -515,6 +531,8 @@ client.on(Events.MessageCreate, async (message) => {
 // ANTI-LINK SYSTEM
 
 const linkSchema = require("./schemas.js/anti-link");
+const { totalmem, cpus } = require("os");
+const { re } = require("mathjs");
 client.on(Events.MessageCreate, async (message) => {
   if (
     message.content.startsWith("http") ||
@@ -555,3 +573,36 @@ client.on(Events.MessageCreate, async (message) => {
     (await message).delete();
   }
 });
+
+// DASHBOARD 
+app.get("/", async (req, res) => {
+
+  // const ram = os.totalmem() / 1000
+  // const cores = os.cpus().length
+  // const cpus = os.cpus()[0].model
+
+  // const users = client.users.cache.size
+  const users = await client.guilds.cache.reduce(
+    (a, b) => a + b.memberCount,
+    0
+  );
+  const guilds = client.guilds.cache.size
+ 
+  const filePath = path.join(__dirname, 'dashboard/html/home.html');
+  let file = fs.readFileSync(filePath, { encoding: 'utf8' });
+
+  // file = file.replace("$$ram$$", ram)
+  // file = file.replace("$$cores$$", cores)
+  // file = file.replace("$$cpu$$", cpus)
+
+  file = file.replace("$$users$$", users)
+  file = file.replace("$$guilds$$", guilds)
+
+  res.send(file)
+  // res.sendFile('./dashboard/html/home.html', { root: __dirname })
+
+
+})  
+
+app.listen(process.env.PORT || 90, () => console.log(`App on port ${process.env.PORT || 90}`))
+

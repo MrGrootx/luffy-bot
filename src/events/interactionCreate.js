@@ -8,7 +8,6 @@ const cooldown = new Set()
 module.exports = {
     name: 'interactionCreate',
     async execute(interaction, client) {
-
      const { member} = interaction
 
         if (!interaction.isCommand()) return;

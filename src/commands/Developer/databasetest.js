@@ -9,6 +9,7 @@ module.exports = {
     .setDescription('db test [dont use this command ]')
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
       .setDMPermission(false), 
+      devOnly: true,
     async execute (interaction) {
 
         const data = await testSchema.findOne({ GuildID: interaction.guild.id, UserID: interaction.user.id})

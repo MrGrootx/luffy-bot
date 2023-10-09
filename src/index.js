@@ -28,7 +28,6 @@ const {
 
 const fs = require("fs");
 
-
 // music stuff
 const { DisTube } = require("distube");
 // const prefix = '?';
@@ -62,7 +61,7 @@ const client = new Client({
 });
 
 // COOLDOWN HAND
-client.cooldown = new Collection()
+client.cooldown = new Collection();
 
 // music
 const { SpotifyPlugin } = require("@distube/spotify");
@@ -126,7 +125,7 @@ client.distube = new DisTube(client, {
   for (file of functions) {
     require(`./functions/${file}`)(client);
   }
-  
+
   client.login(process.env.token);
 })();
 
@@ -510,5 +509,49 @@ client.on(Events.MessageCreate, async (message) => {
     );
 
     return message.channel.send({ embeds: [pingEmbed], components: [buttons] });
+  }
+});
+
+// ANTI-LINK SYSTEM
+
+const linkSchema = require("./schemas.js/anti-link");
+client.on(Events.MessageCreate, async (message) => {
+  if (
+    message.content.startsWith("http") ||
+    message.content.startsWith("discord.gg") ||
+    message.content.includes("discord.gg/") ||
+    message.content.includes("https://") ||
+    message.content.startsWith("www.") ||
+    message.content.includes(".com") ||
+    message.content.includes(".net.") ||
+    message.content.includes(".org") 
+  ) {
+    const Data = await linkSchema.findOne({ Guild: message.guild.id });
+
+    if (!Data) return;
+
+    const memberPerms = Data.Perms;
+
+    const user = message.author;
+    const member = message.guild.members.cache.get(user.id);
+
+    if (member.permissions.has(memberPerms)) return;
+
+    user.send({
+      content: `<@${user.id}>, sending links from that website isn't allowed in **${message.guild.name}**!`,
+    });
+
+    message.channel
+      .send({
+        content: `<@${user.id}>, sending links from that website isn't allowed in **${message.guild.name}**!`,
+      })
+      .then((msg) => {
+        setTimeout(() => msg.delete(), 3000);
+      })
+      .catch((error) => {
+        console.error("Error sending message:", error);
+      });
+
+    (await message).delete();
   }
 });

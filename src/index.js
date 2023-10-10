@@ -79,8 +79,6 @@ app.use(express.static(__dirname + "/dashboard"))
 module.exports.client = client;
 
 
-
-
 // COOLDOWN HAND
 client.cooldown = new Collection();
 

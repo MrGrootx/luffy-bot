@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 
 module.exports = {
-  name: "/features",
+  name: "/test",
   run: async (req, res) => {
     delete require.cache[require.resolve("../html/Features.html")];
 

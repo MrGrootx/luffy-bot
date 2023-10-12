@@ -66,6 +66,9 @@ const client = new Client({
     Partials.Message,
     Partials.GuildMember,
   ],
+  presence: {
+    status: 'idle'
+},
 });
 
 

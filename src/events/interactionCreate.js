@@ -14,6 +14,8 @@ module.exports = {
         const command = client.commands.get(interaction.commandName);
         if (!command) return
 
+        
+
         // cooldown Lines
         const cooldownData = `${interaction.user.id}/${interaction.commandName}`;
         if(client.cooldown.has(cooldownData)) {

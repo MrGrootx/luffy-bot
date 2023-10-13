@@ -2,7 +2,7 @@ const { SlashCommandBuilder } = require('discord.js');
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName('help')
+    .setName('help-testtest')
     .setDescription('Shows all the commands you can use.'),
   async execute (interaction, client) {
 

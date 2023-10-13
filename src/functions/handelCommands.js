@@ -14,7 +14,21 @@ module.exports = (client) => {
                 const command = require(`../commands/${folder}/${file}`);
                 client.commands.set(command.data.name, command);
                 client.commandArray.push(command.data.toJSON());
+
+                
+                const properties = { folder, ...command };
+                client.commands.set(command.data.name, properties);
+                
+                
+                // old client.commands.set(commandFiles.data.name, properties);
+
+                 // help command
+               
+
             }
+
+            
+
         }
 
         const rest = new REST({

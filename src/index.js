@@ -630,46 +630,254 @@ client.on("guildCreate", async (guild) => {
   if (owner) {
     const embed = new EmbedBuilder();
 
-    owner.send({
-      embeds: [
-        embed
-          .setColor("NotQuiteBlack")
-          .setTitle(
-            `<:tickYes:1163338874186117230> Thanks for adding me to your server`
-          )
-          .setFooter({ text: `Sended By : Luffy Team`, iconURL: client.user.displayAvatarURL() })
-          .setTimestamp(),
-      ],
-    }).catch((err) => {
-      console.error(err);
-      return;
-      
-    })
+    owner
+      .send({
+        embeds: [
+          embed
+            .setColor("NotQuiteBlack")
+            .setTitle(
+              `<:tickYes:1163338874186117230> Thanks for adding me to your server`
+            )
+            .setFooter({
+              text: `Sended By : Luffy Team`,
+              iconURL: client.user.displayAvatarURL(),
+            })
+            .setTimestamp(),
+        ],
+      })
+      .catch((err) => {
+        console.error(err);
+        return;
+      });
   }
 });
 
 // GUILD REMOVE
-client.on('guildDelete', async (guild) => {
+client.on("guildDelete", async (guild) => {
   const owner = await guild.members.fetch(guild.ownerId);
 
   if (owner) {
     const embed = new EmbedBuilder();
 
-    owner.send({
-      embeds: [
-        embed
-          .setColor("NotQuiteBlack")
-          .setDescription(
-            `<:tickNo:1163338851192930314> I was removed from your server, **${owner.user.username}** 
+    owner
+      .send({
+        embeds: [
+          embed
+            .setColor("NotQuiteBlack")
+            .setDescription(
+              `<:tickNo:1163338851192930314> I was removed from your server, **${owner.user.username}** 
             If you want to add me back to your server,Here you can [Add Me](https://discord.com/api/oauth2/authorize?client_id=1157966419460374558&permissions=8&scope=bot%20applications.commands).`
-          )
-          .setFooter({ text: `Sended By : Luffy Team`, iconURL: client.user.displayAvatarURL()})
-          .setTimestamp(),
-      ],
-    }).catch((err) => {
-      console.error(err);
-      return;
-      
-    })
+            )
+            .setFooter({
+              text: `Sended By : Luffy Team`,
+              iconURL: client.user.displayAvatarURL(),
+            })
+            .setTimestamp(),
+        ],
+      })
+      .catch((err) => {
+        console.error(err);
+        return;
+      });
+  }
+});
+
+// TICKET SYSTEM
+const { createTranscript } = require("discord-html-transcripts");
+const ticketSchema = require("./schemas.js/ticketSchema");
+let cancelmsg;
+
+client.on(Events.InteractionCreate, async (interaction) => {
+  const { customId, guild, channel } = interaction;
+
+  if (interaction.isButton()) {
+    if (customId === "create-ticket") {
+      let data = await ticketSchema.findOne({ GuildID: guild.id });
+
+      if (!data)
+        return await interaction.reply({
+          content: "Ticket panel is not setup",
+          ephemeral: true,
+        });
+
+      const role = guild.roles.cache.get(data.Role);
+      const category = guild.channels.cache.get(data.Category);
+      const channel = interaction.guild.channels.cache.find(
+        (c) =>
+          c.topic && c.topic.includes(`Ticket Owner: ${interaction.user.id}`)
+      );
+
+      if (channel) {
+        return await interaction.reply({
+          content: `You already have a ticket open <#${channel.id}>`,
+          ephemeral: true,
+        });
+      }
+
+      await interaction.guild.channels
+        .create({
+          name: `ticket-${interaction.user.username}`,
+          parent: category,
+          type: ChannelType.GuildText,
+          topic: `Ticket Owner: ${interaction.user.id}`,
+          permissionOverwrites: [
+            {
+              id: interaction.guild.id,
+              deny: ["ViewChannel"],
+            },
+            {
+              id: role.id,
+              allow: ["ViewChannel", "SendMessages", "ReadMessageHistory"],
+            },
+            {
+              id: interaction.member.id,
+              allow: ["ViewChannel", "SendMessages", "ReadMessageHistory"],
+            },
+          ],
+        })
+        .then(async (channel) => {
+          const openembed = new EmbedBuilder()
+            .setColor("NotQuiteBlack")
+            .setDescription(
+              `Welcome to your ticket, **${interaction.user.username}**`
+            )
+            .setTimestamp()
+            .setFooter({ text: `${interaction.guild.name}'s Tickets` });
+
+          const ticketBtn = new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+              .setCustomId("close-ticket")
+              .setLabel("Close Ticket")
+              .setStyle(ButtonStyle.Danger),
+
+            new ButtonBuilder()
+              .setCustomId("ping-ticket-staff")
+              .setEmoji('🔔')
+              .setStyle(ButtonStyle.Primary)
+          );
+
+          await channel.send({ embeds: [openembed], components: [ticketBtn] });
+
+          const openTicket = new EmbedBuilder().setDescription(
+            `Ticket created in <#${channel.id}>`
+          );
+
+          await interaction.reply({ embeds: [openTicket], ephemeral: true });
+        });
+    }
+
+    if (customId === "close-ticket") {
+      const ticketcloseEmbed = new EmbedBuilder()
+        .setDescription("are you sure you want to close this ticket?")
+        .setColor("NotQuiteBlack");
+
+      const button = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+          .setCustomId("close-ticket-confirm")
+          .setEmoji("✅")
+          .setStyle(ButtonStyle.Primary),
+
+        new ButtonBuilder()
+          .setCustomId("close-ticket-cancel")
+          .setEmoji("✖")
+          .setStyle(ButtonStyle.Danger)
+      );
+      cancelmsg = await interaction.reply({
+        embeds: [ticketcloseEmbed],
+        components: [button],
+      });
+    }
+
+    if (customId === "close-ticket-confirm") {
+      let data = await ticketSchema.findOne({ GuildID: guild.id });
+      const transcript = await createTranscript(channel, {
+        limit: -1,
+        returnBuffer: false,
+        filename: `Ticket-${interaction.user.username}.html`,
+      });
+
+      const transcriptEmbed = new EmbedBuilder()
+        .setColor("NotQuiteBlack")
+        .setAuthor({
+          name: `${interaction.guild.name}'s Transcripts`,
+          iconURL: guild.iconURL(),
+        })
+        .addFields({ name: `Closed By `, value: `${interaction.user.tag}` })
+        .setTimestamp()
+        .setThumbnail(interaction.guild.iconURL())
+        .setFooter({ text: `${interaction.guild.name}'s Tickets` });
+
+      const precessEmbed = new EmbedBuilder()
+        .setDescription("Closing ticket in 10 seconds...")
+        .setColor("NotQuiteBlack");
+
+      await interaction.reply({ embeds: [precessEmbed]});
+
+      await guild.channels.cache.get(data.Logs).send({
+        embeds: [transcriptEmbed],
+        files: [transcript],
+      });
+
+      setTimeout(() => {
+        interaction.channel.delete();
+      }, 10000);
+    }
+
+    if (customId === "close-ticket-cancel") {
+      const cancelEmbed = new EmbedBuilder()
+        .setDescription("Canceling...")
+        .setColor("NotQuiteBlack");
+
+      const message = await interaction.reply({ embeds: [cancelEmbed] });
+      let deletereturnmsg; // deleting  cancled embed  message
+
+      setTimeout(async () => {
+        message.delete();
+
+        const canceledEmbed = new EmbedBuilder()
+          .setDescription(`Ticket Closing Canceled.. 
+          Press again to close the ticket `)
+          .setColor("NotQuiteBlack")
+          .setTimestamp()
+          .setFooter({ text: `Luffy Ticket System`, iconURL: client.user.displayAvatarURL()})
+
+        const button = new ActionRowBuilder().addComponents(
+          new ButtonBuilder()
+          .setCustomId("close-ticket-confirm")
+          .setEmoji("✅")
+          .setStyle(ButtonStyle.Primary)
+          .setDisabled(true),
+
+          new ButtonBuilder()
+            .setCustomId("close-ticket-cancel")
+            .setEmoji("✖")
+            .setStyle(ButtonStyle.Danger)
+            .setDisabled(true)
+        )
+
+        if (cancelmsg) {
+          // Check if cancelmsg exists before trying to edit it
+          deletereturnmsg = await cancelmsg.edit({
+            embeds: [canceledEmbed],
+            components: [button],
+          });
+        }
+      }, 5000);
+    }
+
+    // Ticket Ping Staff
+    if(customId === 'ping-ticket-staff') {
+
+     const data = await ticketSchema.findOne({ GuildID: guild.id })
+
+      const staff = guild.roles.cache.get(data.Role)
+
+      interaction.reply({ content: `Hello <@&${staff.id}> , ${interaction.user.username} need some help`}).catch((err) => {
+        console.error(err)
+        return;
+      })
+
+    }
+
   }
 });

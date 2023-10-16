@@ -114,8 +114,8 @@ module.exports = {
 
         const embed = new EmbedBuilder()
           .setColor(color)
-          .setTimestamp()
-          .setTitle("Ticket Panel")
+          .setTitle(`Welcome to ${interaction.guild.name} Ticket center!`)
+          .setThumbnail(guild.iconURL({size:64 }))
           .setDescription(message);
 
         const button = new ActionRowBuilder().addComponents(

@@ -29,12 +29,10 @@ const {
 const fs = require("fs");
 
 // DASHBOARD
-const path = require('path');
+const path = require("path");
 const express = require("express");
 const os = require("os");
 const app = express();
-
-
 
 // music stuff
 const { DisTube } = require("distube");
@@ -67,20 +65,17 @@ const client = new Client({
     Partials.GuildMember,
   ],
   presence: {
-    status: 'idle'
-},
+    status: "idle",
+  },
 });
 
-
-
 // DASHBOARD
-app.enable("trust proxy") // if the ip is ::1 it means localhost
-app.set("etag", false) // disabe cache
+app.enable("trust proxy"); // if the ip is ::1 it means localhost
+app.set("etag", false); // disabe cache
 
-app.use(express.static(__dirname + "/dashboard"))
+app.use(express.static(__dirname + "/dashboard"));
 // exporting main index to dashboard index
 module.exports.client = client;
-
 
 // COOLDOWN HAND
 client.cooldown = new Collection();
@@ -113,23 +108,22 @@ for (arx of prefixFolders) {
   client.prefix.set(Cmd.name, Cmd);
 }
 
-
-
 // DASHBOARD REQUEST HANDLER
 // GeT all the files in the public folder that ends with .js
-let files = fs.readdirSync("./src/dashboard/public").filter(f => f.endsWith('js'))
+let files = fs
+  .readdirSync("./src/dashboard/public")
+  .filter((f) => f.endsWith("js"));
 
 // Looping thru all files
-files.forEach(f => {
+files.forEach((f) => {
   // requiring the file
-  const file = require(`./dashboard/public/${f}`)
-  if (file && file.name) { // if the file name
-    app.get(file.name, file.run)
-    console.log(`[Dashboard] - Loaded ${file.name}`)
-  
+  const file = require(`./dashboard/public/${f}`);
+  if (file && file.name) {
+    // if the file name
+    app.get(file.name, file.run);
+    console.log(`[Dashboard] - Loaded ${file.name}`);
   }
-})
-
+});
 
 // error handling start
 const process = require("node:process");
@@ -152,7 +146,6 @@ process.on("uncaughtExceptionMonitor", (err, origin) => {
 
 module.exports = client;
 
-
 client.distube = new DisTube(client, {
   emitNewSongOnly: true,
   leaveOnFinish: true, // you can change this to your needs
@@ -171,8 +164,9 @@ client.distube = new DisTube(client, {
 client.handleEvents(eventFiles, "./src/events");
 client.handleCommands(commandFolders, "./src/commands");
 //DASHBOARD
-app.listen(process.env.PORT || 90, () => console.log(`[DASHBORD] port on ${process.env.PORT || 90}`))
-
+app.listen(process.env.PORT || 90, () =>
+  console.log(`[DASHBORD] port on ${process.env.PORT || 90}`)
+);
 
 Logs(client, {
   debug: true,
@@ -197,8 +191,6 @@ client.on("messageCreate", async (message) => {
     prefixcmd.run(client, message, args);
   }
 });
-
-
 
 // REPORT SYSTEM
 
@@ -570,7 +562,7 @@ client.on(Events.MessageCreate, async (message) => {
     message.content.startsWith("www.") ||
     message.content.includes(".com") ||
     message.content.includes(".net.") ||
-    message.content.includes(".org") 
+    message.content.includes(".org")
   ) {
     const Data = await linkSchema.findOne({ Guild: message.guild.id });
 
@@ -602,7 +594,7 @@ client.on(Events.MessageCreate, async (message) => {
   }
 });
 
-// DASHBOARD 
+// DASHBOARD
 // app.get("/", async (req, res) => {
 
 //   // const ram = os.totalmem() / 1000
@@ -615,7 +607,7 @@ client.on(Events.MessageCreate, async (message) => {
 //     0
 //   );
 //   const guilds = client.guilds.cache.size
- 
+
 //   const filePath = path.join(__dirname, 'dashboard/html/home.html');
 //   let file = fs.readFileSync(filePath, { encoding: 'utf8' });
 
@@ -629,8 +621,55 @@ client.on(Events.MessageCreate, async (message) => {
 //   res.send(file)
 //   // res.sendFile('./dashboard/html/home.html', { root: __dirname })
 
+// })
 
-// })  
+// GUILD ADD
+client.on("guildCreate", async (guild) => {
+  const owner = await guild.members.fetch(guild.ownerId);
 
+  if (owner) {
+    const embed = new EmbedBuilder();
 
+    owner.send({
+      embeds: [
+        embed
+          .setColor("NotQuiteBlack")
+          .setTitle(
+            `<:tickYes:1163338874186117230> Thanks for adding me to your server`
+          )
+          .setFooter({ text: `Sended By : Luffy Team`, iconURL: client.user.displayAvatarURL() })
+          .setTimestamp(),
+      ],
+    }).catch((err) => {
+      console.error(err);
+      return;
+      
+    })
+  }
+});
 
+// GUILD REMOVE
+client.on('guildDelete', async (guild) => {
+  const owner = await guild.members.fetch(guild.ownerId);
+
+  if (owner) {
+    const embed = new EmbedBuilder();
+
+    owner.send({
+      embeds: [
+        embed
+          .setColor("NotQuiteBlack")
+          .setDescription(
+            `<:tickNo:1163338851192930314> I was removed from your server, **${owner.user.username}** 
+            If you want to add me back to your server,Here you can [Add Me](https://discord.com/api/oauth2/authorize?client_id=1157966419460374558&permissions=8&scope=bot%20applications.commands).`
+          )
+          .setFooter({ text: `Sended By : Luffy Team`, iconURL: client.user.displayAvatarURL()})
+          .setTimestamp(),
+      ],
+    }).catch((err) => {
+      console.error(err);
+      return;
+      
+    })
+  }
+});

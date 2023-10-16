@@ -29,7 +29,7 @@ module.exports = {
         };
 
 
-        /// premium command start
+        /// premium command 
         const isPremium = await isUserPremium(member.id )
         const premiumEmbed = new EmbedBuilder()
         .setColor('NotQuiteBlack')
@@ -43,8 +43,22 @@ module.exports = {
             })
         }
 
-        // developer interaction
+        // Admin Role only
+        if (command.AdminOnly) {
+            if (
+              !member.roles.cache.has("1107332474402513007") ||
+              !member.roles.cache.has("1107332474402513007") ||
+              !member.roles.cache.has("1107332474402513007") ||
+              !member.roles.cache.has("1107332474402513007")
+            ) {
+              errEmbed.setDescription(
+                "⛔ | Whoops! You don't have permissions for that!"
+              );
+              return interaction.reply({ embeds: [errEmbed], ephemeral: true });
+            }
+          }
 
+        // developer interaction
         const developerID = process.env.DEVELOPER_ID
         if (command.devOnly && !developerID.includes(interaction.user.id)) {
             return interaction.reply({

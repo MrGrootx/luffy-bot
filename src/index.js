@@ -37,8 +37,41 @@ const app = express();
 // music stuff
 const { DisTube } = require("distube");
 // const prefix = '?';
+// const client = new Client({
+//   intents: [
+//     GatewayIntentBits.Guilds,
+//     GatewayIntentBits.GuildMessages,
+//     GatewayIntentBits.MessageContent,
+//     GatewayIntentBits.GuildMessageReactions,
+//     GatewayIntentBits.GuildPresences,
+//     GatewayIntentBits.GuildMembers,
+//     GatewayIntentBits.GuildVoiceStates,
+//     GatewayIntentBits.GuildInvites,
+//     GatewayIntentBits.GuildModeration,
+//     GatewayIntentBits.DirectMessages,
+//     GatewayIntentBits.DirectMessageReactions,
+//     GatewayIntentBits.DirectMessageTyping,
+//     GatewayIntentBits.AutoModerationConfiguration,
+//     GatewayIntentBits.AutoModerationExecution,
+//     GatewayIntentBits.GuildIntegrations,
+//     GatewayIntentBits.GuildEmojisAndStickers,
+//     GatewayIntentBits.GuildWebhooks,
+//     GatewayIntentBits.GuildScheduledEvents,
+//   ],
+//   partials: [
+//     Partials.Channel,
+//     Partials.Reaction,
+//     Partials.Message,
+//     Partials.GuildMember,
+//   ],
+//   presence: {
+//     status: "idle",
+//   },
+// });
+
 const client = new Client({
   intents: [
+    Object.keys(GatewayIntentBits),
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
@@ -46,23 +79,19 @@ const client = new Client({
     GatewayIntentBits.GuildPresences,
     GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildVoiceStates,
-    GatewayIntentBits.GuildInvites,
-    GatewayIntentBits.GuildModeration,
+    GatewayIntentBits.GuildMessageReactions,
     GatewayIntentBits.DirectMessages,
+    GatewayIntentBits.GuildMessageTyping,
     GatewayIntentBits.DirectMessageReactions,
     GatewayIntentBits.DirectMessageTyping,
-    GatewayIntentBits.AutoModerationConfiguration,
-    GatewayIntentBits.AutoModerationExecution,
-    GatewayIntentBits.GuildIntegrations,
-    GatewayIntentBits.GuildEmojisAndStickers,
-    GatewayIntentBits.GuildWebhooks,
-    GatewayIntentBits.GuildScheduledEvents,
+    GatewayIntentBits.GuildPresences,
   ],
   partials: [
     Partials.Channel,
-    Partials.Reaction,
     Partials.Message,
+    Partials.User,
     Partials.GuildMember,
+    Partials.Reaction,
   ],
   presence: {
     status: "idle",
@@ -752,7 +781,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
             new ButtonBuilder()
               .setCustomId("ping-ticket-staff")
-              .setEmoji('🔔')
+              .setEmoji("🔔")
               .setStyle(ButtonStyle.Primary)
           );
 
@@ -811,7 +840,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
         .setDescription("Closing ticket in 10 seconds...")
         .setColor("NotQuiteBlack");
 
-      await interaction.reply({ embeds: [precessEmbed]});
+      await interaction.reply({ embeds: [precessEmbed] });
 
       await guild.channels.cache.get(data.Logs).send({
         embeds: [transcriptEmbed],
@@ -835,25 +864,30 @@ client.on(Events.InteractionCreate, async (interaction) => {
         message.delete();
 
         const canceledEmbed = new EmbedBuilder()
-          .setDescription(`Ticket Closing Canceled.. 
-          Press again to close the ticket `)
+          .setDescription(
+            `Ticket Closing Canceled.. 
+          Press again to close the ticket `
+          )
           .setColor("NotQuiteBlack")
           .setTimestamp()
-          .setFooter({ text: `Luffy Ticket System`, iconURL: client.user.displayAvatarURL()})
+          .setFooter({
+            text: `Luffy Ticket System`,
+            iconURL: client.user.displayAvatarURL(),
+          });
 
         const button = new ActionRowBuilder().addComponents(
           new ButtonBuilder()
-          .setCustomId("close-ticket-confirm")
-          .setEmoji("✅")
-          .setStyle(ButtonStyle.Primary)
-          .setDisabled(true),
+            .setCustomId("close-ticket-confirm")
+            .setEmoji("✅")
+            .setStyle(ButtonStyle.Primary)
+            .setDisabled(true),
 
           new ButtonBuilder()
             .setCustomId("close-ticket-cancel")
             .setEmoji("✖")
             .setStyle(ButtonStyle.Danger)
             .setDisabled(true)
-        )
+        );
 
         if (cancelmsg) {
           // Check if cancelmsg exists before trying to edit it
@@ -866,18 +900,188 @@ client.on(Events.InteractionCreate, async (interaction) => {
     }
 
     // Ticket Ping Staff
-    if(customId === 'ping-ticket-staff') {
+    if (customId === "ping-ticket-staff") {
+      const data = await ticketSchema.findOne({ GuildID: guild.id });
 
-     const data = await ticketSchema.findOne({ GuildID: guild.id })
+      const staff = guild.roles.cache.get(data.Role);
 
-      const staff = guild.roles.cache.get(data.Role)
-
-      interaction.reply({ content: `Hello <@&${staff.id}> , ${interaction.user.username} need some help`}).catch((err) => {
-        console.error(err)
-        return;
-      })
-
+      interaction
+        .reply({
+          content: `Hello <@&${staff.id}> , ${interaction.user.username} need some help`,
+        })
+        .catch((err) => {
+          console.error(err);
+          return;
+        });
     }
-
   }
 });
+
+// JOIN TO CREATE VC
+const jointocreateSchemaSetup = require("./schemas.js/joinToCreateSetup");
+const joinchannelSchema = require("./schemas.js/joinToCreate-channels");
+
+client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
+  try {
+    if (newState.member.guild === null) return;
+  } catch (error) {
+    return;
+  }
+
+  const joindata = await jointocreateSchemaSetup.findOne({
+    Guild: newState.guild.id,
+  });
+  const joinchanneldata = await joinchannelSchema.findOne({
+    Guild: newState.member.guild.id,
+    User: newState.member.id,
+  });
+
+  const voiceChannel = newState.channel;
+
+  if (!joindata) return;
+  if (!voiceChannel) return;
+  else {
+    if (voiceChannel.id === joindata.Channel) {
+      if (joinchanneldata) {
+        try {
+          return await newState.member.send({
+            content: "**You already have a voice channel open right now**",
+            ephemeral: true,
+          });
+        } catch (error) {
+          return;
+        }
+      } else {
+        try {
+          const channel = await newState.member.guild.channels.create({
+            name: `${newState.member.user.username}-room`,
+            type: ChannelType.GuildVoice,
+            userLimit: joindata.VoiceLimit,
+            parent: joindata.Category,
+          });
+          try {
+            await newState.member.voice.setChannel(channel);
+          } catch (error) {
+            return;
+          }
+
+          setTimeout(() => {
+            joinchannelSchema.create({
+              Guild: newState.member.guild.id,
+              Channel: channel.id,
+              User: newState.member.id,
+            });
+          }, 500);
+        } catch (error) {
+          try {
+            await newState.member.send({
+              content: `I could not create your channel, I may be missing Permissions`,
+            });
+          } catch (error) {
+            return;
+          }
+
+          return;
+        }
+
+
+        const data = await jointocreateSchemaSetup.findOne({
+          Guild: oldState.guild.id,
+        });
+
+        
+
+        if (!data) return;
+        
+
+        const embed = new EmbedBuilder()
+          .setColor("NotQuiteBlack")
+          .setTimestamp()
+          .setTitle("Channel Created")
+          .addFields(
+            // { name: "Channel Name", value: `${channel.name}` },
+            // { name: "Channel ID", value: `${channel.id}` },
+            { name: "Channel Owner", value: `${newState.member.user.tag}` },
+            { name: "Channel Owner ID", value: `${newState.member.id}` },
+            {
+              name: "Channel Created Guild in",
+              value: `${newState.member.guild.name}`,
+            }
+          );
+
+        const logsend = data.Log;
+        const sendlogchannel = await oldState.member.guild.channels.cache.get(
+          logsend
+        );
+
+
+        await sendlogchannel.send({ embeds: [embed] });
+      }
+    }
+  }
+});
+
+client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
+  try {
+    if (oldState.member.guild === null) return;
+  } catch (error) {
+    return;
+  }
+
+  const leavechanneldata = await joinchannelSchema.findOne({
+    Guild: oldState.member.guild.id,
+    User: oldState.member.id,
+  });
+
+  if (!leavechanneldata) return;
+  else {
+    const voiceChannel = await oldState.member.guild.channels.cache.get(
+      leavechanneldata.Channel
+    );
+
+    try {
+      await voiceChannel.delete();
+    } catch (error) {
+      return;
+    }
+
+    await joinchannelSchema.deleteMany({
+      Guild: oldState.guild.id,
+      User: oldState.member.id,
+    });
+
+    try {
+      const data = await jointocreateSchemaSetup.findOne({
+        Guild: oldState.guild.id,
+      });
+      if (!data) return;
+
+      const embed = new EmbedBuilder()
+        .setColor("NotQuiteBlack")
+        .setTimestamp()
+        .setTitle("Channel Deleted")
+        .addFields(
+          { name: "Channel Name", value: `${voiceChannel.name}` },
+          { name: "Channel ID", value: `${voiceChannel.id}` },
+          { name: "Channel Owner", value: `${oldState.member.user.tag}` },
+          { name: "Channel Owner ID", value: `${oldState.member.id}` },
+          {
+            name: "Channel Deleted Guild in",
+            value: `${newState.member.guild.name}`,
+          }
+        );
+
+      const logsend = data.Log;
+
+      const sendlogchannel = await oldState.member.guild.channels.cache.get(
+        logsend
+      );
+
+      await sendlogchannel.send({ embeds: [embed] });
+    } catch (error) {
+      return;
+    }
+  }
+});
+
+

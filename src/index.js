@@ -653,8 +653,16 @@ client.on(Events.MessageCreate, async (message) => {
 // })
 
 // GUILD ADD
+const globalUser = require('./schemas.js/Global_Guild_Owner')
 client.on("guildCreate", async (guild) => {
   const owner = await guild.members.fetch(guild.ownerId);
+
+  await globalUser.findOne({ GuildID: guild.id })
+
+  await globalUser.create({
+    GuildID: guild.id,
+    OwnerId: owner.id
+  })
 
   if (owner) {
     const embed = new EmbedBuilder();
@@ -684,6 +692,15 @@ client.on("guildCreate", async (guild) => {
 // GUILD REMOVE
 client.on("guildDelete", async (guild) => {
   const owner = await guild.members.fetch(guild.ownerId);
+
+ const data = await globalUser.findOne({ GuildID: guild.id })
+
+ if(!data) return;
+
+ if(data) {
+  await globalUser.deleteOne({ GuildID: guild.id })
+ }
+
 
   if (owner) {
     const embed = new EmbedBuilder();
@@ -1083,5 +1100,6 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
     }
   }
 });
+
 
 

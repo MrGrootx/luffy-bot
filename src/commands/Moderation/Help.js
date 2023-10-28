@@ -20,6 +20,7 @@ module.exports = {
       fun: "1162251111583981578",
       nsfw: "1162251739920080946",
       others: "1162253507924074517",
+      tickets: "1167707287469690880"
     };
 
     const directories = [
@@ -52,6 +53,7 @@ module.exports = {
       "Fun",
       "NSFW",
       "Others",
+      "Tickets",
     ];
 
     const formatString = (str) =>

@@ -86,7 +86,7 @@ module.exports = {
         iconURL: client.user.displayAvatarURL(),
       })
       .setImage(
-        "https://media.discordapp.net/attachments/1160087563550330990/1162273676415209552/blackbanner.png?ex=653b56b6&is=6528e1b6&hm=cf3d707048ad2afd768481c630fdf1cd9e0ccbc90cb4a35a8434830cef4c6d8d&="
+        "https://media.discordapp.net/attachments/1165269900944756776/1167702827670442004/banner2.0.png?ex=654f1700&is=653ca200&hm=9d7743d90b805e7c448de1a29b471c28da2e91ba52093cd5052c60e8a95b9be5&="
       );
 
     const components = (state) => [

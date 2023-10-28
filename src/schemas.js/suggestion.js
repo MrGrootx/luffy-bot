@@ -5,6 +5,7 @@ const suggestdata = new mongoose.Schema({
   userID: String,
   status: String,
   messageID: String,
+  MessageContent: String,
 });
 
 module.exports = mongoose.model('Suggestion-data', suggestdata);

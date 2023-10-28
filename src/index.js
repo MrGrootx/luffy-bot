@@ -393,117 +393,117 @@ const { CaptchaGenerator } = require("captcha-canvas");
 const capSchema = require("./schemas.js/captchaSchema");
 let guild;
 const buttonDisabledTimeout = 5 * 60 * 1000;
-client.on(Events.GuildMemberAdd, async (member) => {
-  const Data = await capSchema.findOne({ Guild: member.guild.id });
-  if (!Data) return;
-  else {
-    const cap = Data.Captcha;
+// client.on(Events.GuildMemberAdd, async (member) => {
+//   const Data = await capSchema.findOne({ Guild: member.guild.id });
+//   if (!Data) return;
+//   else {
+//     const cap = Data.Captcha;
 
-    const captcha = new CaptchaGenerator()
-      .setDimension(150, 450)
-      .setCaptcha({ text: `${cap}`, size: 60, color: "green" })
-      .setDecoy({ opacity: 0.5 })
-      .setTrace({ color: "green" });
-    console.log(captcha);
-    const buffer = await captcha.generateSync(); // Use await here
+//     const captcha = new CaptchaGenerator()
+//       .setDimension(150, 450)
+//       .setCaptcha({ text: `${cap}`, size: 60, color: "green" })
+//       .setDecoy({ opacity: 0.5 })
+//       .setTrace({ color: "green" });
+//     console.log(captcha);
+//     const buffer = await captcha.generateSync(); // Use await here
 
-    const attachment = new AttachmentBuilder(buffer, { name: "captcha.png" });
+//     const attachment = new AttachmentBuilder(buffer, { name: "captcha.png" });
 
-    const embed = new EmbedBuilder()
-      .setColor("NotQuiteBlack")
-      .setImage("attachment://captcha.png")
-      .setTitle(`Solve the captcha to get access to the server`)
-      .addFields({
-        name: `🔴 Note:`,
-        value: `You have 5 minutes to solve the captcha`,
-      })
-      .setTimestamp()
-      .setFooter({ text: `Use the button below to solve the captcha` });
+//     const embed = new EmbedBuilder()
+//       .setColor("NotQuiteBlack")
+//       .setImage("attachment://captcha.png")
+//       .setTitle(`Solve the captcha to get access to the server`)
+//       .addFields({
+//         name: `🔴 Note:`,
+//         value: `You have 5 minutes to solve the captcha`,
+//       })
+//       .setTimestamp()
+//       .setFooter({ text: `Use the button below to solve the captcha` });
 
-    const capBtn = new ActionRowBuilder().addComponents(
-      new ButtonBuilder()
-        .setCustomId("capbtn")
-        .setLabel("Submit")
-        .setStyle(ButtonStyle.Secondary)
-        .setDisabled(false)
-    );
+//     const capBtn = new ActionRowBuilder().addComponents(
+//       new ButtonBuilder()
+//         .setCustomId("capbtn")
+//         .setLabel("Submit")
+//         .setStyle(ButtonStyle.Secondary)
+//         .setDisabled(false)
+//     );
 
-    const capmodal = new ModalBuilder()
-      .setTitle("Submit Captcha Answer")
-      .setCustomId("capModal");
+//     const capmodal = new ModalBuilder()
+//       .setTitle("Submit Captcha Answer")
+//       .setCustomId("capModal");
 
-    const answer = new TextInputBuilder()
-      .setCustomId("answer")
-      .setRequired(true)
-      .setLabel("Your captcha answer")
-      .setPlaceholder(
-        "Submit what you think the captcha is!  If you get it wrong you can try again"
-      )
-      .setStyle(TextInputStyle.Short);
+//     const answer = new TextInputBuilder()
+//       .setCustomId("answer")
+//       .setRequired(true)
+//       .setLabel("Your captcha answer")
+//       .setPlaceholder(
+//         "Submit what you think the captcha is!  If you get it wrong you can try again"
+//       )
+//       .setStyle(TextInputStyle.Short);
 
-    const one = new ActionRowBuilder().addComponents(answer);
+//     const one = new ActionRowBuilder().addComponents(answer);
 
-    capmodal.addComponents(one);
+//     capmodal.addComponents(one);
 
-    const msg = await member
-      .send({ embeds: [embed], files: [attachment], components: [capBtn] })
-      .catch((err) => {
-        return;
-      });
+//     const msg = await member
+//       .send({ embeds: [embed], files: [attachment], components: [capBtn] })
+//       .catch((err) => {
+//         return;
+//       });
 
-    const collector = msg.createMessageComponentCollector();
+//     const collector = msg.createMessageComponentCollector();
 
-    collector.on("collect", async (i) => {
-      if (i.customId === "capbtn") {
-        i.showModal(capmodal);
-      }
+//     collector.on("collect", async (i) => {
+//       if (i.customId === "capbtn") {
+//         i.showModal(capmodal);
+//       }
 
-      setTimeout(() => {
-        capBtn.components[0].setDisabled(true);
-        msg.edit({ components: [capBtn] });
-      }, buttonDisabledTimeout);
-    });
+//       setTimeout(() => {
+//         capBtn.components[0].setDisabled(true);
+//         msg.edit({ components: [capBtn] });
+//       }, buttonDisabledTimeout);
+//     });
 
-    guild = member.guild;
-  }
-});
+//     guild = member.guild;
+//   }
+// });
 
-client.on(Events.InteractionCreate, async (interaction) => {
-  if (!interaction.isModalSubmit()) return;
-  else {
-    if (!interaction.customId === "capModal") return;
-    // const Data = await capSchema.findOne({ Guild: guild.id });
-    const Data = await capSchema.findOne({ Guild: guild.id });
+// client.on(Events.InteractionCreate, async (interaction) => {
+//   if (!interaction.isModalSubmit()) return;
+//   else {
+//     if (!interaction.customId === "capModal") return;
+//     // const Data = await capSchema.findOne({ Guild: guild.id });
+//     const Data = await capSchema.findOne({ Guild: interaction.guild.id });
 
-    const answer = interaction.fields.getTextInputValue("answer");
-    const cap = Data.Captcha;
+//     const answer = interaction.fields.getTextInputValue("answer");
+//     const cap = Data.Captcha;
 
-    if (answer != `${cap}`)
-      return await interaction.reply({
-        content: `You got the captcha wrong, try again!`,
-        ephemeral: true,
-      });
-    else {
-      const RoleID = Data.Role;
+//     if (answer != `${cap}`)
+//       return await interaction.reply({
+//         content: `You got the captcha wrong, try again!`,
+//         ephemeral: true,
+//       });
+//     else {
+//       const RoleID = Data.Role;
 
-      const capGuild = await client.guilds.cache.get(guild.id);
-      const role = await capGuild.roles.cache.get(RoleID);
+//       const capGuild = await client.guilds.cache.get(guild.id);
+//       const role = await capGuild.roles.cache.get(RoleID);
 
-      const member = await capGuild.members.fetch(interaction.user.id);
+//       const member = await capGuild.members.fetch(interaction.user.id);
 
-      await member.roles.add(role).catch((err) => {
-        interaction.reply({
-          content: `There was an error adding the role`,
-          ephemeral: true,
-        });
-      });
+//       await member.roles.add(role).catch((err) => {
+//         interaction.reply({
+//           content: `There was an error adding the role`,
+//           ephemeral: true,
+//         });
+//       });
 
-      await interaction.reply({
-        content: `You have been Verified within ${capGuild.name}`,
-      });
-    }
-  }
-});
+//       await interaction.reply({
+//         content: `You have been Verified within ${capGuild.name}`,
+//       });
+//     }
+//   }
+// });
 
 // AUTOROLE SYSTTEM
 const autoroleSchema = require("./schemas.js/autoroleSchema");
@@ -653,16 +653,16 @@ client.on(Events.MessageCreate, async (message) => {
 // })
 
 // GUILD ADD
-const globalUser = require('./schemas.js/Global_Guild_Owner')
+const globalUser = require("./schemas.js/Global_Guild_Owner");
 client.on("guildCreate", async (guild) => {
   const owner = await guild.members.fetch(guild.ownerId);
 
-  await globalUser.findOne({ GuildID: guild.id })
+  await globalUser.findOne({ GuildID: guild.id });
 
   await globalUser.create({
     GuildID: guild.id,
-    OwnerId: owner.id
-  })
+    OwnerId: owner.id,
+  });
 
   if (owner) {
     const embed = new EmbedBuilder();
@@ -693,14 +693,13 @@ client.on("guildCreate", async (guild) => {
 client.on("guildDelete", async (guild) => {
   const owner = await guild.members.fetch(guild.ownerId);
 
- const data = await globalUser.findOne({ GuildID: guild.id })
+  const data = await globalUser.findOne({ GuildID: guild.id });
 
- if(!data) return;
+  if (!data) return;
 
- if(data) {
-  await globalUser.deleteOne({ GuildID: guild.id })
- }
-
+  if (data) {
+    await globalUser.deleteOne({ GuildID: guild.id });
+  }
 
   if (owner) {
     const embed = new EmbedBuilder();
@@ -1001,15 +1000,11 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
           return;
         }
 
-
         const data = await jointocreateSchemaSetup.findOne({
           Guild: oldState.guild.id,
         });
 
-        
-
         if (!data) return;
-        
 
         const embed = new EmbedBuilder()
           .setColor("NotQuiteBlack")
@@ -1030,7 +1025,6 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
         const sendlogchannel = await oldState.member.guild.channels.cache.get(
           logsend
         );
-
 
         await sendlogchannel.send({ embeds: [embed] });
       }
@@ -1101,5 +1095,103 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
   }
 });
 
+// SUGGESTIONS SYSTEM
+const suggestSchema = require("./schemas.js/SuggestionSchema-setup");
+const suggestdata = require("./schemas.js/suggestion");
 
+client.on(Events.InteractionCreate, async (interaction) => {
+  if (!interaction.guild) return;
+  if (!interaction.message) return;
+  if (!interaction.isButton) return;
 
+  const data = await suggestdata.findOne({
+    guildId: interaction.guild.id,
+    messageID: interaction.message.id,
+  });
+  if (!data) return;
+
+  const { fields } = interaction;
+
+  const message = await interaction.channel.messages.fetch(data.messageID);
+  const user = await client.users.fetch(data.userID);
+  const messagecontent = data.MessageContent;
+
+  if (interaction.customId == "suggest_accept_btn") {
+    if (
+      !interaction.member.permissions.has(
+        PermissionsBitField.Flags.ModerateMembers
+      )
+    )
+      return await interaction.reply({
+        content: `**Only Admins & Staffs can use this button.**`,
+        ephemeral: true,
+      });
+
+    const embed = new EmbedBuilder();
+
+    await message.edit({
+      embeds: [
+        embed
+          .setColor("Green")
+          .setAuthor({
+            name: "Suggestion was accepted",
+            iconURL: client.user.displayAvatarURL(),
+          })
+          .setTitle(`${user.username}`)
+          .setDescription(`> ${messagecontent}`)
+          .setThumbnail(user.displayAvatarURL({size:64}))
+          .addFields({
+            name: `Accepted By:`,
+            value: `<@${interaction.user.id}>`,
+          })
+          .setFooter({
+            text: `Status: Accepted | ${interaction.createdAt.toDateString()}`,
+          }),
+      ],
+      components: [],
+    }).catch((err) => {
+      console.error(err);
+      return;
+    })
+
+    await suggestdata.deleteOne({ guildId: interaction.guild.id });
+  }
+
+  if (interaction.customId == "suggest_deny_btn") {
+    if (
+      !interaction.member.permissions.has(
+        PermissionsBitField.Flags.ModerateMembers
+      )
+    )
+      return await interaction.reply({
+        content: `**Only Admins & Staffs can use this button.**`,
+        ephemeral: true,
+      });
+
+    const embed = new EmbedBuilder();
+    await message.edit({
+      embeds: [
+        embed
+          .setColor("Red")
+          .setAuthor({
+            name: `Suggestion was declined`,
+            iconURL: client.user.displayAvatarURL(),
+          })
+          .setDescription(`> ${messagecontent}`)
+          .setTitle(`${user.username}`)
+          .setFooter({text: `Status: Declined | ${interaction.createdAt.toDateString()}`})
+          .setThumbnail(user.displayAvatarURL({size:64}))
+          .addFields({
+            name: `Declined By:`,
+            value: `<@${interaction.user.id}>`,
+          }),
+      ],
+      components: [],
+    }).catch((err) => {
+      console.error(err);
+      return;
+    })
+
+    await suggestdata.deleteOne({ guildId: interaction.guild.id });
+  }
+});

@@ -66,7 +66,6 @@ module.exports = {
     await suggestdata.create({
         messageID: msg.id,
         guildId: interaction.guild.id,
-        status: "Pending",
         userID: interaction.user.id,
         MessageContent: message
     })

@@ -168,7 +168,6 @@ module.exports = {
                 .setDescription(
                   `${usertag} | ID : ${target.id} has no warning..`
                 )
-                .setFooter({ text: `Warned by ${user.tag}` })
                 .setTimestamp();
 
               interaction.reply({ embeds: [embed] });

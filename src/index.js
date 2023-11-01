@@ -470,14 +470,14 @@ client.on(Events.GuildMemberAdd, async (interaction, message) => {
 
 // client.on(Events.InteractionCreate, async (interaction) => {
 //   if (!interaction.isModalSubmit()) return;
- 
+
 //   else {
 //     if (interaction.customId === "capModal") {
 //       const Data = await capSchema.findOne({ Guild: guild.id });
 
 //       const answer = interaction.fields.getTextInputValue("answer");
 //       const cap = Data.Captcha;
-  
+
 //       if (answer != `${cap}`)
 //         return await interaction.reply({
 //           content: `You got the captcha wrong, try again!`,
@@ -485,26 +485,26 @@ client.on(Events.GuildMemberAdd, async (interaction, message) => {
 //         });
 //       else {
 //         const RoleID = Data.Role;
-  
+
 //         const capGuild = await client.guilds.cache.get(guild.id);
 //         const role = await capGuild.roles.cache.get(RoleID);
-  
+
 //         const member = await capGuild.members.fetch(interaction.user.id);
-  
+
 //         await member.roles.add(role).catch((err) => {
 //           interaction.reply({
 //             content: `There was an error adding the role`,
 //             ephemeral: true,
 //           });
 //         });
-  
+
 //         await interaction.reply({
 //           content: `You have been Verified within ${capGuild.name}`,
 //         });
 //       }
 //     }
 //     // const Data = await capSchema.findOne({ Guild: guild.id });
-   
+
 //   }
 // });
 // client.on(Events.InteractionCreate, async interaction => {
@@ -536,11 +536,7 @@ client.on(Events.GuildMemberAdd, async (interaction, message) => {
 
 // CAP END
 
-
-
-
 // AUTOROLE SYSTTEM
-
 
 const autoroleSchema = require("./schemas.js/autoroleSchema");
 
@@ -1165,30 +1161,32 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
     const embed = new EmbedBuilder();
 
-    await message.edit({
-      embeds: [
-        embed
-          .setColor("Green")
-          .setAuthor({
-            name: "Suggestion was accepted",
-            iconURL: client.user.displayAvatarURL(),
-          })
-          .setTitle(`${user.username}`)
-          .setDescription(`> ${messagecontent}`)
-          .setThumbnail(user.displayAvatarURL({size:64}))
-          .addFields({
-            name: `Accepted By:`,
-            value: `<@${interaction.user.id}>`,
-          })
-          .setFooter({
-            text: `Status: Accepted | ${interaction.createdAt.toDateString()}`,
-          }),
-      ],
-      components: [],
-    }).catch((err) => {
-      console.error(err);
-      return;
-    })
+    await message
+      .edit({
+        embeds: [
+          embed
+            .setColor("Green")
+            .setAuthor({
+              name: "Suggestion was accepted",
+              iconURL: client.user.displayAvatarURL(),
+            })
+            .setTitle(`${user.username}`)
+            .setDescription(`> ${messagecontent}`)
+            .setThumbnail(user.displayAvatarURL({ size: 64 }))
+            .addFields({
+              name: `Accepted By:`,
+              value: `<@${interaction.user.id}>`,
+            })
+            .setFooter({
+              text: `Status: Accepted | ${interaction.createdAt.toDateString()}`,
+            }),
+        ],
+        components: [],
+      })
+      .catch((err) => {
+        console.error(err);
+        return;
+      });
 
     await suggestdata.deleteOne({ guildId: interaction.guild.id });
   }
@@ -1205,60 +1203,56 @@ client.on(Events.InteractionCreate, async (interaction) => {
       });
 
     const embed = new EmbedBuilder();
-    await message.edit({
-      embeds: [
-        embed
-          .setColor("Red")
-          .setAuthor({
-            name: `Suggestion was declined`,
-            iconURL: client.user.displayAvatarURL(),
-          })
-          .setDescription(`> ${messagecontent}`)
-          .setTitle(`${user.username}`)
-          .setFooter({text: `Status: Declined | ${interaction.createdAt.toDateString()}`})
-          .setThumbnail(user.displayAvatarURL({size:64}))
-          .addFields({
-            name: `Declined By:`,
-            value: `<@${interaction.user.id}>`,
-          }),
-      ],
-      components: [],
-    }).catch((err) => {
-      console.error(err);
-      return;
-    })
+    await message
+      .edit({
+        embeds: [
+          embed
+            .setColor("Red")
+            .setAuthor({
+              name: `Suggestion was declined`,
+              iconURL: client.user.displayAvatarURL(),
+            })
+            .setDescription(`> ${messagecontent}`)
+            .setTitle(`${user.username}`)
+            .setFooter({
+              text: `Status: Declined | ${interaction.createdAt.toDateString()}`,
+            })
+            .setThumbnail(user.displayAvatarURL({ size: 64 }))
+            .addFields({
+              name: `Declined By:`,
+              value: `<@${interaction.user.id}>`,
+            }),
+        ],
+        components: [],
+      })
+      .catch((err) => {
+        console.error(err);
+        return;
+      });
 
     await suggestdata.deleteOne({ guildId: interaction.guild.id });
   }
 });
 
-
-client.on(Events.InteractionCreate, async (interaction) => {
-  if(!interaction.isModalSubmit()) return
-
-  if(interaction.customId === 'test_test') {
-    await interaction.reply({ content: `worked`, ephemeral: true})
-
-    const name = interaction.fields.getTextInputValue('nametesfesfefeftest')
-  console.log(name)
-
+const axios = require("axios");
+client.on("messageCreate", async (interaction) => {
+  if (interaction.content === "test") {
+    const options = {
+      method: 'GET',
+      url: 'https://free-epic-games.p.rapidapi.com/free',
+      headers: {
+        'X-RapidAPI-Key': '884f0f23b6mshd312e2a7b54a101p1da811jsn411bf075d903',
+        'X-RapidAPI-Host': 'free-epic-games.p.rapidapi.com'
+      }
+    };
+    
+    try {
+      const response = await axios.request(options);
+      console.log(response.data);
+    } catch (error) {
+      console.error(error);
+    }
   }
-
-  
-})
-
-client.on(Events.InteractionCreate, async (interaction) => {
-  if(!interaction.isModalSubmit()) return
-
-  if(interaction.customId === 'test_testtest_test') {
-    await interaction.reply({ content: `worked`, ephemeral: true})
-
-    const name = interaction.fields.getTextInputValue('nametesfesfefeftestnametesfesfefeftest')
-  console.log(name)
-
-  }
-
-  
-})
+});
 
 

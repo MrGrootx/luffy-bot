@@ -5,17 +5,9 @@ const {
   ButtonStyle,
   ActionRowBuilder,
 } = require("discord.js");
-// const login = require("../../Schemas.js/loginSchemaMail");
-// const join = require("../../Schemas.js/Join to create/jointocreatechannels");
-// const hug = require("../../Schemas.js/Interaction Schemas/hug");
-// const kiss = require("../../Schemas.js/Interaction Schemas/kiss");
-// const slap = require("../../Schemas.js/Interaction Schemas/slap");
-// const eco = require("../../Schemas.js/ecoSchema");
-// const level = require("../../Schemas.js/Leveling/level");
-// const remind = require("../../Schemas.js/remindSchema");
-// const test = require("../../Schemas.js/test");
 const warningSchema = require("../../schemas.js/warning");
 const reminderSchema = require("../../schemas.js/remindSchema");
+const ecnomySchema = require("../../schemas.js/Eco-Account");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -50,17 +42,9 @@ module.exports = {
     collector.on("collect", async (i) => {
       const { user } = i;
       if (i.customId === "yes") {
-        // await login.deleteMany({ User: user.id});
-        // await join.deleteMany({ User: user.id});
-        // await hug.deleteMany({ User: user.id});
-        // await kiss.deleteMany({ User: user.id});
-        // await slap.deleteMany({ User: user.id});
-        // await eco.deleteMany({ User: user.id});
-        // await level.deleteMany({ User: user.id});
-        // await remind.deleteMany({ User: user.id});
-        // await test.deleteMany({ UserID: user.id});
         await warningSchema.deleteMany({ UserID: user.id });
         await reminderSchema.deleteMany({ User: user.id });
+        await ecnomySchema.deleteMany({ User: user.id });
 
         await i.update({ embeds: [embed2], components: [], ephemeral: true });
 

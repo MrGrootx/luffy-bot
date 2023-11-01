@@ -30,7 +30,7 @@ module.exports = {
     switch (options.getString("options")) {
       case "create":
         if (Data)
-          return interaction.reply({ content: `You already have an account` });
+          return interaction.reply({ content: `**You already have an account**`, ephemeral: true });
 
         Data = new accountSchema({
           Guild: interaction.guild.id,
@@ -69,19 +69,44 @@ module.exports = {
       case "balance":
         {
           if (!Data)
+            // return interaction.reply({
+            //   content: `You Don't have Economy account.. First Create Account`,
+            //   ephemeral: true,
+            // });
+
             return interaction.reply({
-              content: `You Don't have Economy account.. First Create Account`,
-              ephemeral: true,
-            });
+              embeds: [
+                new EmbedBuilder()
+                .setColor('Red')
+                .setDescription(`You Don't Have **Economy Account** Create a account and Try again..!`)
+                .setFooter({ text: 'Economy System' })
+                .setTimestamp()
+                .setThumbnail(user.displayAvatarURL({size:64}))
+                
+              ]
+            })
 
           const embed = new EmbedBuilder()
-            .setTitle(`Economy Account Balance`)
-            .setDescription(
-              `Wallet: ${Data.Wallet}\nBank: ${Data.Bank}\nTotal ${
-                Data.Wallet + Data.Bank
-              }$`
+            // .setTitle(`Economy Account Balance`)
+            // .setDescription(
+            //   `Wallet: ${Data.Wallet}\nBank: ${Data.Bank}\nTotal ${
+            //     Data.Wallet + Data.Bank
+            //   }$`
+            // )
+            // .setColor("NotQuiteBlack");
+
+            .setColor('NotQuiteBlack')
+            .setTitle(`Account Balance`)
+            .setFooter({ text: 'Economy System' })
+            .setTimestamp()
+            // .setAuthor({ name: `Account Name: ${interaction.user.username}`})
+            .addFields({ name: ' ', value: `**Account Name**: ${interaction.user.username}`})
+            .addFields(
+              { name: ` `, value: ` ${economy.economy.bank} **Bank**: ${Data.Bank.toString()}`, inline: true },
+              { name: ` `, value: ` ${economy.economy.wallet} **Wallet**: ${Data.Wallet.toString()}`, inline: true },
+              { name: ` `, value: ` ${economy.economy.total} **Total**:  ${(Data.Wallet + Data.Bank).toString()}`, inline: true }
             )
-            .setColor("NotQuiteBlack");
+
 
           await interaction.reply({ embeds: [embed] });
         }

@@ -117,15 +117,24 @@ module.exports = {
         {
           if (!Data)
             return interaction.reply({
-              content: `You Don't have Economy account.. First Create Account`,
+              content: `You Don't have Economy account to Delete`,
               ephemeral: true,
             });
 
           await Data.delete();
 
+          // interaction.reply({
+          //   content: "Your Economy Account for this server has been Deleted",
+          // });
+
           interaction.reply({
-            content: "Your Economy Account for this server has been Deleted",
-          });
+            embeds: [
+              new EmbedBuilder()
+              .setColor('Red')
+              .setDescription(`Your **Economy Account** has been Deleted`)
+              .setTimestamp()
+            ]
+          })
         }
         break;
     }

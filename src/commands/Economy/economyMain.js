@@ -2,6 +2,8 @@ const { SlashCommandBuilder, EmbedBuilder, Client } = require("discord.js");
 
 const accountSchema = require("../../schemas.js/Eco-Account");
 
+const economy = require('../../commands/Economy/config/Eco-emoji.json')
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("economy")
@@ -39,9 +41,29 @@ module.exports = {
 
         await Data.save();
 
+        // interaction.reply({
+        //   content: `Account created You Got ${Data.Wallet} at your wallet`,
+        // });
+
         interaction.reply({
-          content: `Account created You Got ${Data.Wallet} at your wallet`,
-        });
+          embeds: [
+            new EmbedBuilder()
+            .setColor('NotQuiteBlack')
+            .setTitle(`${economy.embed.successfullytic} Your Economy account has been successfully created`)
+            .setDescription(`* You Got **${Data.Wallet}$** at your wallet`)
+            .setFooter({ text: 'Economy System' })
+            .setTimestamp()
+            .setThumbnail(user.displayAvatarURL({size:64}))
+            .setAuthor({ name: guild.name, iconURL: guild.iconURL() })
+
+            .addFields(
+              { name: `${economy.economy.bank} Bank`, value: Data.Bank.toString(), inline: true },
+              { name: `${economy.economy.wallet} Wallet`, value: Data.Wallet.toString(), inline: true },
+              { name: `${economy.economy.total} Total`, value: (Data.Wallet + Data.Bank).toString(), inline: true }
+            )
+          ]
+        })
+
         break;
 
       case "balance":

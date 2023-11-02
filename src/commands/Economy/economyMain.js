@@ -1,8 +1,14 @@
 const { SlashCommandBuilder, EmbedBuilder, Client } = require("discord.js");
 
+const economySetup  = require('../../schemas.js/Eco-Setup')
 const accountSchema = require("../../schemas.js/Eco-Account");
-
 const economy = require('../../commands/Economy/config/Eco-emoji.json')
+
+
+async function isEconomyEnabled(guildId) {
+  const economyData = await economySetup.findOne({ GuildID: guildId });
+  return economyData && economyData.DisEn;
+}
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -21,6 +27,21 @@ module.exports = {
     ),
 
   async execute(interaction) {
+
+    const guildId = interaction.guild.id;
+    // Check Economy System Enabled/Disabled for intract Guild
+    if (!(await isEconomyEnabled(guildId))) {
+      return interaction.reply({
+        embeds: [
+          new EmbedBuilder()
+          .setColor('Red')
+          .setDescription(`Economy System Not Enabled For this Server`)
+        ]
+      });
+    }
+
+
+
     const { options, user, guild } = interaction;
 
     let Data = await accountSchema

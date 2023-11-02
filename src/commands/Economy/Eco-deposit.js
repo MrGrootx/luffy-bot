@@ -33,7 +33,7 @@ module.exports = {
           content: `You Don't have any money in your wallet to deposit it into your bank`,
         });
 
-      Data.Bank += Data.Bank;
+      Data.Bank += Data.Wallet;
       Data.Wallet = 0;
 
       await Data.save();
@@ -46,18 +46,24 @@ module.exports = {
 
       if (isNaN(converted) === true)
         return interaction.reply({
-          content: "the amount can only be a number or `all` ",
+          content: "The amount can only be a number or `all` ",
           ephemeral: true,
         });
 
       if (Data.Wallet < parseInt(converted) || converted === Infinity)
         return interaction.reply({
-          content: `You Don't have any money in your wallet to deposit it into your wallet`,
+          content: `You Don't have any money in your wallet to deposit it into your Bank`,
         });
+
+      // if (Data.Wallet < converted) {
+      //   return interaction.reply({
+      //     content: `You don't have enough money in your wallet to deposit ${converted}$ into your bank.`,
+      //   });
+      // }
 
         Data.Bank += parseInt(converted);
         Data.Wallet -= parseInt(converted);
-        Data.Wallet = Math.abs(Data.Bank)
+        // Data.Wallet = Math.abs(Data.Bank)
 
         await Data.save()
 

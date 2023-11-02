@@ -4,7 +4,7 @@ const {
   Client,
   PermissionFlagsBits,
 } = require("discord.js");
-
+const economy = require('../../commands/Economy/config/Eco-emoji.json')
 const accountSchema = require("../../schemas.js/Eco-Account");
 
 module.exports = {
@@ -35,10 +35,13 @@ module.exports = {
       .findOne({ Guild: interaction.guild.id, User: Member.id })
       .catch((err) => {});
 
-    if (!Data)
-      return interaction.reply({
-        content: `The user has no economy account`,
-      });
+
+    if(!Data) return interaction.reply({ embeds: [
+      new EmbedBuilder()
+        .setColor("Red")
+        .setDescription(`The user has no economy account`),
+    ]})
+
 
     const MoneyReceiver = await accountSchema.findOne({
       Guild: interaction.guild.id,
@@ -54,11 +57,21 @@ module.exports = {
     DataReceived.save();
 
     interaction.reply({
-        embeds: [
-            new EmbedBuilder()
-            .setColor('NotQuiteBlack')
-            .setDescription(`Added ${amount}$ to ${Member.username}`)
-        ],
-    })
+      embeds: [
+        new EmbedBuilder()
+          .setColor("NotQuiteBlack")
+          .setDescription(`* Added ${amount}$ to ${Member.username}`)
+          .setFooter({ text: 'Economy System' })
+          .setTimestamp()
+          .addFields({ name: ' ', value: `${Member} Account Details`})
+          .addFields(
+            { name: ` `, value: ` ${economy.economy.bank} **Bank**: ${Data.Bank.toString()}`, inline: true },
+            { name: ` `, value: ` ${economy.economy.wallet} **Wallet**: ${Data.Wallet.toString()}`, inline: true },
+            { name: ` `, value: ` ${economy.economy.total} **Total**:  ${(Data.Wallet + Data.Bank).toString()}`, inline: true }
+          )
+          .addFields({ name: ` `, value: '* ~~This is not updated Account Details~~'})
+          .setThumbnail(Member.displayAvatarURL({size:64}))
+      ],
+    });
   },
 };

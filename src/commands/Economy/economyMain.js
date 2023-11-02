@@ -36,7 +36,7 @@ module.exports = {
           Guild: interaction.guild.id,
           User: user.id,
           Bank: 0,
-          Wallet: 1000,
+          Wallet: 100,
         });
 
         await Data.save();
@@ -56,10 +56,15 @@ module.exports = {
             .setThumbnail(user.displayAvatarURL({size:64}))
             .setAuthor({ name: guild.name, iconURL: guild.iconURL() })
 
+            // .addFields(
+            //   { name: `${economy.economy.bank} Bank`, value: Data.Bank.toString(), inline: true },
+            //   { name: `${economy.economy.wallet} Wallet`, value: Data.Wallet.toString(), inline: true },
+            //   { name: `${economy.economy.total} Total`, value: (Data.Wallet + Data.Bank).toString(), inline: true }
+            // )
             .addFields(
-              { name: `${economy.economy.bank} Bank`, value: Data.Bank.toString(), inline: true },
-              { name: `${economy.economy.wallet} Wallet`, value: Data.Wallet.toString(), inline: true },
-              { name: `${economy.economy.total} Total`, value: (Data.Wallet + Data.Bank).toString(), inline: true }
+              { name: ` `, value: ` ${economy.economy.bank} **Bank**: ${Data.Bank.toString()}`, inline: true },
+              { name: ` `, value: ` ${economy.economy.wallet} **Wallet**: ${Data.Wallet.toString()}`, inline: true },
+              { name: ` `, value: ` ${economy.economy.total} **Total**:  ${(Data.Wallet + Data.Bank).toString()}`, inline: true }
             )
           ]
         })
@@ -87,14 +92,6 @@ module.exports = {
             })
 
           const embed = new EmbedBuilder()
-            // .setTitle(`Economy Account Balance`)
-            // .setDescription(
-            //   `Wallet: ${Data.Wallet}\nBank: ${Data.Bank}\nTotal ${
-            //     Data.Wallet + Data.Bank
-            //   }$`
-            // )
-            // .setColor("NotQuiteBlack");
-
             .setColor('NotQuiteBlack')
             .setTitle(`Account Balance`)
             .setFooter({ text: 'Economy System' })

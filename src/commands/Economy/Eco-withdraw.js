@@ -33,8 +33,8 @@ module.exports = {
           content: `You Don't have any money in your bank to withdraw it into your wallet`,
         });
 
-      Data.Wallet += Data.Bank;
-      Data.Bank = 0;
+        Data.Wallet += Data.Bank;
+        Data.Bank = 0;
 
       await Data.save();
 
@@ -57,7 +57,7 @@ module.exports = {
 
         Data.Wallet += parseInt(converted);
         Data.Bank -= parseInt(converted);
-        Data.Bank = Math.abs(Data.Bank)
+        // Data.Bank = Math.abs(Data.Bank)
 
         await Data.save()
 

@@ -24,14 +24,28 @@ module.exports = {
 
     if (!Data)
       return interaction.reply({
-        content: `You Don't have Economy account.. First Create Account`,
+        embeds: [
+          new EmbedBuilder()
+            .setColor("Red")
+            .setDescription(
+              `You Don't Have **Economy Account** Create a account and Try again..!`
+            )
+            .setFooter({ text: "Economy System" })
+            .setTimestamp()
+        ],
       });
 
+
     if (Amount.toLowerCase() === "all") {
-      if (Data.Bank === 0)
+      if(Data.Bank === 0)
         return interaction.reply({
-          content: `You Don't have any money in your bank to withdraw it into your wallet`,
-        });
+          embeds: [
+            new EmbedBuilder()
+            .setColor("Red")
+            .setDescription("You Don't have any money in your bank to withdraw it into your wallet")
+          ],
+          ephemeral: true
+      })
 
         Data.Wallet += Data.Bank;
         Data.Bank = 0;
@@ -39,7 +53,13 @@ module.exports = {
       await Data.save();
 
       return interaction.reply({
-        content: `All Your money has been withdrawed..`,
+        // content: `All Your money has been withdrawed..`,
+        embeds: [
+          new EmbedBuilder()
+          .setColor("Green")
+          .setDescription("All Your money has been withdrawed..")
+        ]
+
       });
     } else {
       const converted = Number(Amount);
@@ -52,7 +72,12 @@ module.exports = {
 
       if (Data.Bank < parseInt(converted) || converted === Infinity)
         return interaction.reply({
-          content: `You Don't have any money in your bank to withdraw it into your wallet`,
+          embeds: [
+            new EmbedBuilder()
+            .setColor("Red")
+            .setDescription("You Don't have any money in your bank to withdraw it into your wallet")
+          ],
+          ephemeral: true
         });
 
         Data.Wallet += parseInt(converted);

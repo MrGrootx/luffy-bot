@@ -86,8 +86,6 @@ module.exports = {
                 .setDescription(`You Don't Have **Economy Account** Create a account and Try again..!`)
                 .setFooter({ text: 'Economy System' })
                 .setTimestamp()
-                .setThumbnail(user.displayAvatarURL({size:64}))
-                
               ]
             })
 

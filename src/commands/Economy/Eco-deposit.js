@@ -22,9 +22,22 @@ module.exports = {
       .findOne({ Guild: interaction.guild.id, User: user.id })
       .catch((err) => {});
 
+    // if (!Data)
+    //   return interaction.reply({
+    //     content: `You Don't have Economy account.. First Create Account`,
+    //   });
+
     if (!Data)
       return interaction.reply({
-        content: `You Don't have Economy account.. First Create Account`,
+        embeds: [
+          new EmbedBuilder()
+            .setColor("Red")
+            .setDescription(
+              `You Don't Have **Economy Account** Create a account and Try again..!`
+            )
+            .setFooter({ text: "Economy System" })
+            .setTimestamp()
+        ],
       });
 
     if (Amount.toLowerCase() === "all") {
@@ -61,17 +74,19 @@ module.exports = {
       //   });
       // }
 
-        Data.Bank += parseInt(converted);
-        Data.Wallet -= parseInt(converted);
-        // Data.Wallet = Math.abs(Data.Bank)
+      Data.Bank += parseInt(converted);
+      Data.Wallet -= parseInt(converted);
+      // Data.Wallet = Math.abs(Data.Bank)
 
-        await Data.save()
+      await Data.save();
 
-        const embed = new EmbedBuilder()
-        .setColor('NotQuiteBlack')
-        .setDescription(`Successfully ${parseInt(converted)}$ deposited into your bank..`)
+      const embed = new EmbedBuilder()
+        .setColor("NotQuiteBlack")
+        .setDescription(
+          `Successfully ${parseInt(converted)}$ deposited into your bank..`
+        );
 
-        return interaction.reply({ embeds: [embed] })
+      return interaction.reply({ embeds: [embed] });
     }
   },
 };

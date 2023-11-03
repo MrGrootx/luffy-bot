@@ -1238,14 +1238,14 @@ const axios = require("axios");
 client.on("messageCreate", async (interaction) => {
   if (interaction.content === "test") {
     const options = {
-      method: 'GET',
-      url: 'https://free-epic-games.p.rapidapi.com/free',
+      method: "GET",
+      url: "https://free-epic-games.p.rapidapi.com/free",
       headers: {
-        'X-RapidAPI-Key': '884f0f23b6mshd312e2a7b54a101p1da811jsn411bf075d903',
-        'X-RapidAPI-Host': 'free-epic-games.p.rapidapi.com'
-      }
+        "X-RapidAPI-Key": "884f0f23b6mshd312e2a7b54a101p1da811jsn411bf075d903",
+        "X-RapidAPI-Host": "free-epic-games.p.rapidapi.com",
+      },
     };
-    
+
     try {
       const response = await axios.request(options);
       console.log(response.data);
@@ -1255,4 +1255,85 @@ client.on("messageCreate", async (interaction) => {
   }
 });
 
+// TEST
+
+client.on('ready', () => {
+
+  let guild = client.guilds.cache.get("1112106400131330099");
+
+  client.channels.cache
+    .get("1158718654272254022")
+    .setName(`Total users - ${guild.memberCount}`);
+  client.channels.cache
+    .get("1158723125358362746")
+    .setName(`Members - ${guild.members.cache.filter(member => !member.user.bot).size} `)
+    
+  client.channels.cache
+    .get("1158719065964159016")
+    .setName(
+      `Bots - ${
+        guild.members.cache.filter((member) => member.user.bot).size
+      }`
+    );
+
+    
+
+    // FUncation
+    function statusCount() {
+      client.channels.cache.get("1144707326327144529")
+      .setName(`🟢 ${guild.members.cache.filter(m => m.presence?.status == 'online').size} 
+      🔴  ${guild.members.cache.filter(m => m.presence?.status == 'dnd').size} 
+      🌙  ${guild.members.cache.filter(m => m.presence?.status == 'idle').size}
+      ⚫  ${guild.members.cache.filter(m => m.presence?.status == 'offline' || !m.presence).size}`)
+      // set the channel name to status..
+      // online, dnd, idle, offline
+
+    } statusCount()
+
+    setInterval(() => {
+      statusCount()
+    
+    },60000)
+
+})
+
+client.on("guildMemberAdd", (member) => {
+  client.channels.cache
+    .get("1158718654272254022")
+    .setName(`Total users - ${member.guild.memberCount}`);
+  client.channels.cache
+    .get("1158719025686249482")
+    .setName(
+      `Members - ${member.guild.members.cache.filter(
+        (member) => !member.user.bot
+      )}`
+    );
+  client.channels.cache
+    .get("1158719065964159016")
+    .setName(
+      `Bots - ${
+        member.guild.members.cache.filter((member) => member.user.bot).size
+      }`
+    );
+});
+
+client.on("guildMemberRemove", (member) => {
+  client.channels.cache
+    .get("1158718654272254022")
+    .setName(`Total users - ${member.guild.memberCount}`);
+  client.channels.cache
+    .get("1158719025686249482")
+    .setName(
+      `Members - ${member.guild.members.cache.filter(
+        (member) => !member.user.bot
+      )}`
+    );
+  client.channels.cache
+    .get("1158719065964159016")
+    .setName(
+      `Bots - ${
+        member.guild.members.cache.filter((member) => member.user.bot).size
+      }`
+    );
+});
 

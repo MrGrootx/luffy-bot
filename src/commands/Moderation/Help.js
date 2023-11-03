@@ -6,6 +6,8 @@ const {
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
   Client,
+  ButtonBuilder,
+  ButtonStyle,
 } = require("discord.js");
 
 module.exports = {
@@ -48,6 +50,16 @@ module.exports = {
       "Tickets",
       "Economy",
     ];
+
+    function Command(name) {
+      const getCommandID = client.application.commands.cache
+        .filter((cmd) => cmd.name === name)
+        .map((cmd) => cmd.id);
+
+      return getCommandID;
+    }
+
+    console.log(client.application.commands.cache);
 
     const categores = directories
       .filter((dir) => allowedFolders.includes(dir))
@@ -99,6 +111,7 @@ module.exports = {
           )
       ),
     ];
+
     const initialMessage = await interaction.reply({
       embeds: [embed],
       components: components(false),
@@ -113,6 +126,8 @@ module.exports = {
     });
 
     collector.on("collect", (interaction) => {
+
+      
       const [directory] = interaction.values;
       const category = categores.find(
         (x) => x.directory.toLowerCase() === directory
@@ -125,18 +140,32 @@ module.exports = {
         )
         .addFields(
           category.commands.map((cmd) => {
+            const commandID = Command(cmd.name);
             return {
               name: `\`/${cmd.name}\``,
+              // name: `</${cmd.name}:${commandID}>`,
               value: cmd.description,
               inline: true,
             };
           })
+          
         );
 
-      interaction.update({ embeds: [categoryEmbed] }).catch((err) => {
-        return;
-      });
+        console.log(category)
+
+      interaction
+        .update({ embeds: [categoryEmbed] })
+        .catch((err) => {
+          return;
+        });
+
+
+
     });
+    
+
+    
+
 
     collector.on("end", () => {
       initialMessage.update({ components: components(true) }).catch((err) => {

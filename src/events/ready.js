@@ -57,5 +57,17 @@ module.exports = {
     }, `2500`);
     
 
+
+    client.application.commands.set(client.commands.map(v  => v.data)).then(cmds => {
+      console.log(`${cmds.size} commands loaded`);
+      cmds.toJSON().forEach(cmd => {
+        const rawcommand = client.commands.get(cmd.name);
+        rawcommand.id = cmd.id;
+
+        client.commands.set(cmd.name,  rawcommand);
+        // console.log(rawcommand);
+      })
+    });
+
   },
 };

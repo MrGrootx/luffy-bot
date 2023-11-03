@@ -5,13 +5,19 @@ const {
   ActionRowBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
+  Client,
 } = require("discord.js");
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("help")
-    .setDescription("Get information about the bot"),
+    .setDescription("Get information about the bot")
+    .setDMPermission(false),
   async execute(interaction, client) {
+    if (!interaction || !interaction.guild) {
+      return;
+    }
+
     const emoji = {
       admin: "1162250996148359168",
       moderation: "1107688449928089670",
@@ -20,30 +26,16 @@ module.exports = {
       fun: "1162251111583981578",
       nsfw: "1162251739920080946",
       others: "1162253507924074517",
-      tickets: "1167707287469690880"
+      tickets: "1167707287469690880",
+      economy: "1169631902920089731",
     };
 
     const directories = [
       ...new Set(interaction.client.commands.map((cmd) => cmd.folder)),
     ];
 
-    // const formatString = (str) =>
-    //   `${str[0].toUpperCase()}${str.slice(1).toLowerCase()}`;
-
-    //   const categores = directories.map((dir) => {
-    //     const getCommands = interaction.client.commands
-    //       .filter((cmd) => cmd.folder === dir)
-    //       .map((cmd) => {
-    //         return {
-    //           name: cmd.data.name,
-    //           description: cmd.data.description || "No Description",
-    //         };
-    //       });
-    //     return {
-    //       directory: formatString(dir),
-    //       commands: getCommands,
-    //     };
-    //   });
+    const formatString = (str) =>
+      `${str[0].toUpperCase()}${str.slice(1).toLowerCase()}`;
 
     const allowedFolders = [
       "General",
@@ -54,10 +46,8 @@ module.exports = {
       "NSFW",
       "Others",
       "Tickets",
+      "Economy",
     ];
-
-    const formatString = (str) =>
-      `${str[0].toUpperCase()}${str.slice(1).toLowerCase()}`;
 
     const categores = directories
       .filter((dir) => allowedFolders.includes(dir))
@@ -119,7 +109,7 @@ module.exports = {
 
     const collector = interaction.channel.createMessageComponentCollector({
       filter,
-      ComponentType: ComponentType.StringSelect,
+      ComponentType: ComponentType.StringSelectMenuBuilder,
     });
 
     collector.on("collect", (interaction) => {
@@ -143,15 +133,18 @@ module.exports = {
           })
         );
 
-      interaction.update({ embeds: [categoryEmbed] });
+      interaction.update({ embeds: [categoryEmbed] }).catch((err) => {
+        return;
+      });
     });
 
     collector.on("end", () => {
-      initialMessage.edit({ components: components(true) });
+      initialMessage.update({ components: components(true) }).catch((err) => {
+        return;
+      });
     });
   },
 };
-
 
 // this lines added in handleCommands
 // const properties = { folder, ...command };

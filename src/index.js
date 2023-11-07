@@ -36,38 +36,8 @@ const app = express();
 
 // music stuff
 const { DisTube } = require("distube");
-// const prefix = '?';
-// const client = new Client({
-//   intents: [
-//     GatewayIntentBits.Guilds,
-//     GatewayIntentBits.GuildMessages,
-//     GatewayIntentBits.MessageContent,
-//     GatewayIntentBits.GuildMessageReactions,
-//     GatewayIntentBits.GuildPresences,
-//     GatewayIntentBits.GuildMembers,
-//     GatewayIntentBits.GuildVoiceStates,
-//     GatewayIntentBits.GuildInvites,
-//     GatewayIntentBits.GuildModeration,
-//     GatewayIntentBits.DirectMessages,
-//     GatewayIntentBits.DirectMessageReactions,
-//     GatewayIntentBits.DirectMessageTyping,
-//     GatewayIntentBits.AutoModerationConfiguration,
-//     GatewayIntentBits.AutoModerationExecution,
-//     GatewayIntentBits.GuildIntegrations,
-//     GatewayIntentBits.GuildEmojisAndStickers,
-//     GatewayIntentBits.GuildWebhooks,
-//     GatewayIntentBits.GuildScheduledEvents,
-//   ],
-//   partials: [
-//     Partials.Channel,
-//     Partials.Reaction,
-//     Partials.Message,
-//     Partials.GuildMember,
-//   ],
-//   presence: {
-//     status: "idle",
-//   },
-// });
+
+
 
 const client = new Client({
   intents: [
@@ -97,7 +67,8 @@ const client = new Client({
     status: "idle",
   },
 });
-
+// For Music
+module.exports = client;
 // DASHBOARD
 app.enable("trust proxy"); // if the ip is ::1 it means localhost
 app.set("etag", false); // disabe cache

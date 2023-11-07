@@ -18,6 +18,20 @@ module.exports = {
     const query = options.getString("query");
     const voiceChannel = member.voice.channel;
 
+    if (
+      query.includes("open.spotify.com") ||
+      query.includes("music.apple.com") ||
+      query.includes('deezer.com')
+    ) {
+      return interaction.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setColor("Red")
+            .setDescription(`Sorry, only YouTube links are supported`),
+        ],
+      });
+    }
+
     if (!voiceChannel) {
       return interaction.reply({
         content: `You must be in a voice channel to use this command`,

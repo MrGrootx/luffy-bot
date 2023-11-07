@@ -67,7 +67,7 @@ const client = new Client({
     status: "idle",
   },
 });
-// For Music
+// For Music For More Commands
 module.exports = client;
 // DASHBOARD
 app.enable("trust proxy"); // if the ip is ::1 it means localhost
@@ -80,7 +80,7 @@ module.exports.client = client;
 // COOLDOWN HAND
 client.cooldown = new Collection();
 
-// music
+// MUSIC LINE FILE
 const { SpotifyPlugin } = require("@distube/spotify");
 const { SoundCloudPlugin } = require("@distube/soundcloud");
 const { YtDlpPlugin } = require("@distube/yt-dlp");

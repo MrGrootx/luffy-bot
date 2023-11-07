@@ -17,6 +17,11 @@ const player = new DisTube(client, {
 
 
 player.on('playSong', (queue, song) => {
+
+    // if (song.url.includes('open.spotify.com')) {
+    //     queue.textChannel.send('This is a Spotify link: ' + song.url);
+    // }
+
     const uploader = song.uploader.url
     ? `[${song.uploader.name}](${song.uploader.url})`
     : song.uploader.name;

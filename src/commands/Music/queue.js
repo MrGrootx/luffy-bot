@@ -76,7 +76,4 @@ module.exports = {
     }
   },
 
-  options: {
-    botPermissions: ["Connect", "Speak"],
-  },
 };

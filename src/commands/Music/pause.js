@@ -41,7 +41,4 @@ module.exports = {
       console.log(error);
     }
   },
-  options: {
-    botPermissions: ["Connect", "Speak", "SendMessages"],
-  },
 };

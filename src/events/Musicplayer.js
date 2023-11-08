@@ -1,5 +1,5 @@
 const { DisTube } = require('distube');
-const { EmbedBuilder } = require('discord.js');
+const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const Discord = require('discord.js'); // Import the Discord module
 
 const client =  require('../index') // Create a new Discord client
@@ -25,6 +25,29 @@ player.on('playSong', (queue, song) => {
     const uploader = song.uploader.url
     ? `[${song.uploader.name}](${song.uploader.url})`
     : song.uploader.name;
+
+    const buttons = new ActionRowBuilder()
+    .addComponents(
+        // new ButtonBuilder()
+        // .setCustomId('musicsystem_pause_btn')
+        // .setLabel('Pause')
+        // .setStyle(ButtonStyle.Secondary),
+
+        new ButtonBuilder()
+        .setCustomId('musicsystem_stop_btn')
+        .setLabel('Stop')
+        .setStyle(ButtonStyle.Danger),
+
+        // new ButtonBuilder()
+        // .setCustomId('musicsystem_resume_btn')
+        // .setLabel('Resume')
+        // .setStyle(ButtonStyle.Secondary),
+
+        new ButtonBuilder()
+        .setCustomId('musicsystem_skip_btn')
+        .setLabel('Skip')
+        .setStyle(ButtonStyle.Secondary),
+    )
 
     queue.textChannel.send({
         embeds: [
@@ -53,7 +76,9 @@ player.on('playSong', (queue, song) => {
                     value: song.user.toString(), inline: true,
                 }
             )
-        ]
+        ],
+        components: [buttons]
+
     });
 });
 

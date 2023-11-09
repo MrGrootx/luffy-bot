@@ -3,6 +3,7 @@ const {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
+  EmbedBuilder
 } = require("discord.js");
 const player = require("./Musicplayer");
 
@@ -18,8 +19,13 @@ module.exports = {
     const voiceChannel = member.voice.channel;
     let isPaused = false;
     if (!voiceChannel) {
+
+      const embed = new EmbedBuilder()
+      .setColor('Red')
+      .setDescription(`You must be in a voice channel`)
+
       return interaction.reply({
-        content: `You must be in a voice channel to use this command`,
+        embeds: [embed]
       });
     }
 
@@ -48,24 +54,65 @@ module.exports = {
 
       if (customId === "musicsystem_skip_btn") {
         const queue = player.getQueue(guild.id);
-    
-        if (!queue || queue.songs.length === 0) {
-            interaction.reply({ content: "There are no songs in the queue to skip.", ephemeral: true });
-            return;
+        if (queue) {
+          if (voiceChannel.id !== queue.voiceChannel.id) {
+            const embed2 = new EmbedBuilder()
+              .setColor("DarkButNotBlack")
+              .setDescription(
+                "You must be in the same voice channel as the bot to play music."
+              )
+              .setTimestamp();
+            return interaction.reply({ embeds: [embed2], ephemeral: true });
+          }
         }
-    
-        let type = "Skipped";
-    
-        // Skip to the next song
-        await player.skip(guild.id).then(() => (type = "Skipped"));
-    
-        interaction.reply({ content: type, ephemeral: true });
-    }
-    
-    
+
+        try {
+          const queue = player.getQueue(voiceChannel);
+
+          if (!queue) {
+            const embed3 = new EmbedBuilder()
+              .setColor("DarkButNotBlack")
+              .setDescription("No music in the playlist.")
+              .setTimestamp();
+            return interaction.reply({ embeds: [embed3] });
+          }
+
+          if (queue.songs.length > 1) {
+            const skippedSong = await queue.skip(voiceChannel);
+
+            if (skippedSong) {
+              const embed4 = new EmbedBuilder()
+                .setColor("DarkButNotBlack")
+                .setTitle(`${skippedSong.name}`)
+                .setTimestamp()
+                .setFooter({ text: "skipped" });
+
+              return interaction.reply({ embeds: [embed4] });
+            }
+          } else {
+            const embed5 = new EmbedBuilder()
+              .setColor("DarkButNotBlack")
+              .setDescription("There is no music to skip.");
+            return interaction.reply({ embeds: [embed5] });
+          }
+        } catch (err) {
+          console.log(err);
+
+          const embed6 = new EmbedBuilder()
+            .setColor("Red")
+            .setDescription("An error occurred! Try again!");
+
+          return interaction.reply({ embeds: [embed6], ephemeral: true });
+        }
+
+        
+      }
 
       // Stop
       if (customId === "musicsystem_stop_btn") {
+
+        
+
         await player.stop(guild.id);
 
         interaction.reply({ content: `Stoped`, ephemeral: true });

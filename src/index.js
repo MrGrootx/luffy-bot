@@ -76,7 +76,7 @@ app.set("etag", false); // disabe cache
 app.use(express.static(__dirname + "/dashboard"));
 // exporting main index to dashboard index
 module.exports.client = client;
-
+client.setMaxListeners(0)
 // COOLDOWN HAND
 client.cooldown = new Collection();
 

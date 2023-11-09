@@ -3,7 +3,7 @@ const player = require("../../events/Musicplayer.js");
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("play-test")
+    .setName("play")
     .setDescription("play music")
     .addStringOption((option) =>
       option

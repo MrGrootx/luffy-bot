@@ -3,8 +3,8 @@ const client = require("../../index");
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("play")
-    .setDescription("Play a song.")
+    .setName("play-spotify")
+    .setDescription("Play a spotify song.")
     .addStringOption(option =>
       option.setName("query")
         .setDescription("Provide the name or url for the song.")

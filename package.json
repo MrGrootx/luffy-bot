@@ -22,6 +22,7 @@
     "canvacord": "^5.4.10",
     "captcha-canvas": "^3.2.1",
     "chalk": "^5.3.0",
+    "commandkit": "^0.1.6",
     "cookie-parser": "^1.4.6",
     "discord-cloner": "^1.1.5",
     "discord-fivem-api": "^2.0.2",
@@ -46,6 +47,7 @@
     "musicard": "^1.5.1",
     "nsfw-ts": "^1.0.6",
     "opusscript": "^0.0.8",
+    "rss-parser": "^3.13.0",
     "tinyurl": "^1.1.7",
     "yt-search": "^2.10.4",
     "ytdl-core": "^4.11.5"
